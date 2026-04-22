@@ -1,4 +1,4 @@
-**Dự án:** Hotel Booking Management System (HBMS)  
+﻿**Dự án:** Hotel Booking Management System (HBMS)  
 **Phiên bản:** 1.0 (Database Centric)
 
 ---
@@ -17,15 +17,17 @@ Dựa trên nguyên lý chuẩn hóa (Normalization), hệ thống cần các th
     
 5. **Bookings (Đơn đặt phòng):** Thông tin chung của giao dịch (Ngày tạo, Khách hàng, Trạng thái đơn).
     
-6. **Booking_Details (Chi tiết đặt phòng):** Liên kết Đơn đặt với Phòng cụ thể và Thời gian ở (Tách ra để 1 đơn có thể đặt nhiều phòng).
+6. **Booking_Details (Chi tiết đặt phòng):** Liên kết Đơn đặt với Loại phòng (Room_Types) thay vì phòng vật lý (Pha 1: Đặt phòng).
+7. **Room_Type_Inventory (Tồn kho loại phòng):** Quản lý số lượng phòng còn trống theo từng loại phòng trong từng ngày.
+8. **Room_Assignments (Gán phòng):** Liên kết Đơn đặt với Phòng vật lý cụ thể (Pha 2: Check-in).
     
-7. **Services (Dịch vụ):** Các dịch vụ đi kèm (Spa, Ăn uống, Giặt ủi).
+9. **Services (Dịch vụ):** Các dịch vụ đi kèm (Spa, Ăn uống, Giặt ủi).
     
-8. **Service_Usage (Sử dụng dịch vụ):** Ghi nhận việc khách sử dụng dịch vụ nào, số lượng bao nhiêu.
+10. **Service_Usage (Sử dụng dịch vụ):** Ghi nhận việc khách sử dụng dịch vụ nào, số lượng bao nhiêu.
     
-9. **Invoices (Hóa đơn):** Chứng từ thanh toán cuối cùng.
+11. **Invoices (Hóa đơn):** Chứng từ thanh toán cuối cùng.
     
-10. **Staff (Nhân viên):** Người thực hiện Check-in/Check-out và dọn phòng.
+12. **Staff (Nhân viên):** Người thực hiện Check-in/Check-out và dọn phòng.
     
 
 ---
@@ -36,7 +38,7 @@ Dòng chảy dữ liệu đi qua các bảng theo trình tự sau:
 
 1. **Search (Tìm kiếm):** Hệ thống lọc bảng Rooms loại bỏ các phòng có ID nằm trong bảng Booking_Details có thời gian chồng lấn với thời gian khách chọn.
     
-2. **Reservation (Đặt giữ chỗ):** INSERT vào Bookings và Booking_Details. Lúc này giá phòng được "chụp ảnh" (Snapshot) lưu vào Booking_Details. Trạng thái phòng chưa đổi, nhưng logic tìm kiếm sẽ tự loại phòng này ra.
+2. **Reservation (Đặt giữ chỗ):** INSERT vào Bookings và Booking_Details. Đơn đặt chỉ map với Room_Types (Loại phòng). Số lượng đặt được trừ vào room_type_inventory. Trạng thái phòng chưa đổi.
     
 3. **Check-in (Nhận phòng):** Nhân viên xác thực. Cập nhật trạng thái Bookings sang "Checked-in". Cập nhật trạng thái Rooms sang "Occupied".
     

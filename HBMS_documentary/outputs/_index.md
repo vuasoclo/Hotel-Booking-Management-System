@@ -26,6 +26,9 @@ projects/ (hành động cụ thể — bài toán thật)
 | Kiến trúc DBMS.md | Kiến thức cốt lõi và tư duy thiết kế dbps |
 | TÀI LIỆU ĐẶC TẢ NGHIỆP VỤ & RÀNG BUỘC DỮ LIỆU.md | Định nghĩa thực thể, chuẩn hóa dữ liệu |
 | tính năng dbms.md | Map tính năng sang các object tương ứng trong PostgreSQL |
+| Đặc tả_Physical_Schema.md | Script DDL tạo bảng vật lý, Enum, và khoá ngoại (Hybrid 2-Phase) |
+| Đặc tả_Database_Programmability.md | Logic nghiệp vụ xử lý bằng Stored Procedure và Trigger (Fix 3 Anti-patterns) |
+| Đặc tả_Database_Test_Plan.md | 11 Kịch bản Database Test (Constraints, Inventory, Trigger) |
 
 ## Nguyên tắc sử dụng
 

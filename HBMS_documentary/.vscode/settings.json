@@ -1,0 +1,6 @@
+{
+    "markdown.styles": [
+        ".vscode/styles/gruvbox.css",
+        ".vscode/styles/gruvbox-dark.css"
+    ]
+}

@@ -20,8 +20,9 @@ Tài liệu này xác định các kịch bản kiểm thử (Test Cases/Test Sc
 
 ### STT | Tên Kịch bản | Phương pháp Kiểm thử | Kết quả Mong đợi |
 | --- | --- | --- | --- |
-| **TC-01** | Tạo Reservation hợp lệ | `INSERT` đơn cho loại `Deluxe` ngày `2026-05-01` số lượng 1 phòng. | Thành công. Inventory update `total_reserved` lên 1. |
-| **TC-02** | Chống Overbooking Loại phòng | Tính từ **TC-01**, liên tục `INSERT` 3 đơn nữa cho ngày `2026-05-01`. | Lỗi CHECK `no_overbook` xảy ra ở `room_type_inventory` khi tổng `reserved` chạm 4 (Limit là 3). |
+| **TC-01** | Tạo Reservation hợp lệ | `CALL create_reservation` cho loại `Deluxe` ngày `2026-05-01 14:00` tới `2026-05-02 12:00` số lượng 1 khách sạn 1. | Thành công. Inventory update `total_reserved` lên 1. Booking có `check_in` là TIMESTAMP. |
+| **TC-01.1**| Test Phụ thu tự động | Nhập Booking với `check_in` lúc `07:00:00` sáng | Trigger/Logic tạo thành công 1 record trong bảng `booking_surcharges` với `surcharge_type = EarlyCheckIn`. |
+| **TC-02** | Chống Overbooking Loại phòng | Tính từ **TC-01**, liên tục gọi `create_reservation` 3 đơn nữa cho loại phòng đó cùng ngày. | Lỗi CHECK `no_overbook` xảy ra ở `room_type_inventory` khi tổng `reserved` chạm 4 (Limit là 3). |
 | **TC-03** | Auto giá Snapshot pha 1 | `INSERT` booking, test kiểm tra Trigger có lấy đúng giá 100$ từ bang `room_types` vào `agreed_price` hay không. Sửa giá gốc thành 120$ và kiểm tra lại `agreed_price`. | Thành công ở booking 1. Booking sau 120$. Đơn cũ không thay giá. |
 | **TC-04** | Check-in Gán phòng | Mở màn Check-in cho đơn **TC-01**. Gán `Room=D101`. | `INSERT` vào `room_assignments` thành công. Trạng thái Booking -> `Checked-in`. |
 | **TC-05** | Chặn Duplicate Check-in (EXCLUDE) | Từ **TC-04**, mở màn định Check-in thêm 1 Booking khác vào `Room=D101` trùng ngày. | Lỗi EXCLUDE `exclude_overlapping_assignments` báo vi phạm khoảng thời gian. |
@@ -31,3 +32,6 @@ Tài liệu này xác định các kịch bản kiểm thử (Test Cases/Test Sc
 | **TC-09** | Xóa phòng khi còn Booking FK RESTRICT | Cố tình gọi `DELETE FROM room_types WHERE type_name = 'Deluxe'`. | Lỗi do khóa ngoại `ON DELETE RESTRICT`. |
 | **TC-10** | Xóa Bookings Parent FK CASCADE | Gọi lệnh `DELETE FROM bookings WHERE id = 1` (Theo logic nên chặn). Nếu xóa, `Booking_Details` và `Room_Assignments` phải mất theo. | Bị chặn từ đầu (Application Rule: Soft Delete). Tuy nhiên DBMS constraint sẽ chạy `CASCADE` nếu force chạy qua CLI. |
 | **TC-11** | Audit Field Trigger | Sửa thông báo mô tả của `Rooms` bằng lệnh `UPDATE`. | Trigger `touch_updated_at` nhảy, thay đổi thời gian `updated_at`. |
+| **TC-12** | Test trigger nhả Inventory | Hủy booking từ TC-01 bằng `UPDATE status='Cancelled'`. | [FIX-2] `total_reserved` giảm về 0, `cancelled_at` được set thành NOW(). |
+| **TC-13** | Test function tính phụ thu giờ | Bơm data vào bảng `surcharge_policies` sau đó gọi `create_reservation` với `check_in` lúc 07:00. | [FIX-3] Kiểm tra bảng `booking_surcharges` có tự động insert đúng record tính phí sớm cho function `apply_time_surcharges`. |
+| **TC-14** | Test Ràng buộc Tuổi Khách | Gọi lệnh `INSERT INTO customers` với `date_of_birth` từ năm 2015. | [FIX-4] Báo lỗi `CHECK violation` từ `chk_customer_age` do chưa đủ 18 tuổi. |

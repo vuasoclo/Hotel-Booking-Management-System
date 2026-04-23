@@ -12,14 +12,16 @@ Dựa trên nguyên lý chuẩn hóa (Normalization), hệ thống cần các th
 2. **Room_Types (Loại phòng):** Định nghĩa thông số tĩnh (Ví dụ: Deluxe, Standard, Suite, giá gốc, sức chứa).
     
 3. **Rooms (Phòng vật lý):** Các phòng cụ thể (Ví dụ: Phòng 101, 102).
+
+4. **Hotels & Staff (Khách sạn & Nhân sự):** Định danh cơ sở lưu trú và nhân viên phụ trách.
     
-4. **Price_Policies (Chính sách giá):** Quản lý giá theo mùa/ngày lễ (tách riêng để tránh sửa bảng Room_Types liên tục).
+5. **Price_Policies & Surcharges (Chính sách giá & Phụ thu):** Quản lý giá theo mùa, ngày lễ, khung giờ check-in sớm, check-out muộn.
     
-5. **Bookings (Đơn đặt phòng):** Thông tin chung của giao dịch (Ngày tạo, Khách hàng, Trạng thái đơn).
+6. **Bookings (Đơn đặt phòng):** Thông tin giao dịch, giờ nhận/trả phòng (TIMESTAMP), dòng tiền (amount_paid, balance).
     
-6. **Booking_Details (Chi tiết đặt phòng):** Liên kết Đơn đặt với Loại phòng (Room_Types) thay vì phòng vật lý (Pha 1: Đặt phòng).
-7. **Room_Type_Inventory (Tồn kho loại phòng):** Quản lý số lượng phòng còn trống theo từng loại phòng trong từng ngày.
-8. **Room_Assignments (Gán phòng):** Liên kết Đơn đặt với Phòng vật lý cụ thể (Pha 2: Check-in).
+7. **Booking_Details (Chi tiết đặt phòng):** Liên kết Đơn đặt với Loại phòng kèm thông tin gói dịch vụ (ăn sáng).
+8. **Room_Type_Inventory (Tồn kho loại phòng):** Quản lý số lượng phòng còn trống theo từng loại phòng trong từng ngày.
+9. **Room_Assignments (Gán phòng):** Liên kết Đơn đặt với Phòng vật lý cụ thể (Pha 2: Check-in).
     
 9. **Services (Dịch vụ):** Các dịch vụ đi kèm (Spa, Ăn uống, Giặt ủi).
     
@@ -156,7 +158,7 @@ Dòng chảy dữ liệu đi qua các bảng theo trình tự sau:
 
 - **Tên quy tắc:** Tự động tính tổng tiền (Auto-Calculate Total Amount).
     
-- **Mô tả:** Tổng tiền hóa đơn (TotalAmount) = (Giá phòng * Số đêm) + Tổng tiền dịch vụ. Giá trị này phải luôn đúng, không phụ thuộc vào việc tính toán ở Frontend.
+- **Mô tả:** Tổng tiền (TotalAmount) = (Giá phòng * Số đêm) + Tổng tiền dịch vụ + Phụ thu (Surcharges theo khung giờ/ngày lễ). Phải tính chi tiết và lưu trữ rõ ràng để giải trình và quản lý dòng tiền (Cọc / Còn nợ).
     
 - **Giải pháp kỹ thuật:**
     
@@ -164,7 +166,13 @@ Dòng chảy dữ liệu đi qua các bảng theo trình tự sau:
         
     - Cách 2: Sử dụng **View** để hiển thị báo cáo.
         
-    - Cách 3: Sử dụng TRIGGER AFTER INSERT/UPDATE/DELETE trên bảng Service_Usage để cập nhật lại cột TotalAmount trong bảng Bookings (Denormalization để tối ưu tốc độ đọc).
+    - Cách 3: Sử dụng TRIGGER AFTER INSERT/UPDATE/DELETE trên bảng **Booking_Surcharges** và **Service_Usage** để cập nhật lại cột `total_amount` trong bảng `Bookings`.
+
+#### 6. Granular Time Policies (Chính sách thời gian)
+
+- **Tên quy tắc:** Phụ thu Check-in sớm / Check-out muộn.
+- **Mô tả:** Ghi nhận giờ nhận và trả phòng chính xác đến phút (`TIMESTAMP`). Khớp với bảng `Surcharge_Policies` (Ví dụ check-in 06:00-09:00 thu 50% tiền phòng) để sinh ra record trong `Booking_Surcharges`.
+- **Giải pháp:** Trigger hoặc Application Logic sẽ quét trường `check_in`/`check_out` để sinh phụ thu tự động.
         
 
 ---

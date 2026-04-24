@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/DEMO/hotel-booking-management/src/main/java/com/hotelbooking/hotel_booking_management/TestController.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/DEMO/hotel-booking-management/src/main/java/com/hotelbooking/hotel_booking_management/TestController.java" />
+              <option name="originalContent" value="&#10;&#10;" />
+              <option name="updatedContent" value="package com.hotelbooking.hotel_booking_management;&#10;&#10;import org.springframework.stereotype.Controller;&#10;import org.springframework.web.bind.annotation.GetMapping;&#10;import org.springframework.web.bind.annotation.ResponseBody;&#10;&#10;@Controller&#10;public class TestController {&#10;&#10;    @GetMapping(&quot;/&quot;)&#10;    public String index() {&#10;        return &quot;forward:/index.html&quot;;&#10;    }&#10;&#10;    @GetMapping(&quot;/api/test&quot;)&#10;    @ResponseBody&#10;    public String test() {&#10;        return &quot;Backend is running successfully!&quot;;&#10;    }&#10;}&#10;" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

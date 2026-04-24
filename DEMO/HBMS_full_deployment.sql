@@ -127,7 +127,8 @@ CREATE TABLE IF NOT EXISTS bookings (
     updated_at TIMESTAMP DEFAULT NOW(),
     updated_by INT REFERENCES staff(id),
     cancelled_at TIMESTAMP,
-    cancel_reason TEXT
+    cancel_reason TEXT,
+    CONSTRAINT chk_amount_paid CHECK (amount_paid <= total_amount)
 );
 
 CREATE TABLE IF NOT EXISTS booking_details (
@@ -136,7 +137,8 @@ CREATE TABLE IF NOT EXISTS booking_details (
     room_type_id INT NOT NULL REFERENCES room_types(id) ON DELETE RESTRICT,
     agreed_price DECIMAL(10, 2) NOT NULL CHECK (agreed_price >= 0),
     quantity INT NOT NULL CHECK (quantity > 0),
-    is_breakfast_included BOOLEAN DEFAULT FALSE
+    is_breakfast_included BOOLEAN DEFAULT FALSE,
+    CONSTRAINT uq_booking_room_type UNIQUE (booking_id, room_type_id)
 );
 
 CREATE TABLE IF NOT EXISTS booking_surcharges (
@@ -190,8 +192,14 @@ CREATE TABLE IF NOT EXISTS invoices (
     amount_paid DECIMAL(10, 2) NOT NULL CHECK (amount_paid >= 0),
     balance DECIMAL(10, 2) NOT NULL,
     status invoice_status DEFAULT 'Draft',
-    CONSTRAINT chk_invoice_balance CHECK (balance = total_amount - amount_paid)
+    CONSTRAINT chk_invoice_balance CHECK (balance = total_amount - amount_paid),
+    CONSTRAINT uq_invoice_booking UNIQUE (booking_id)
 );
+
+-- Partial index: Chỉ cho phép một invoice active mỗi booking (không tính trạng thái Void)
+CREATE UNIQUE INDEX IF NOT EXISTS uq_invoice_active_booking 
+ON invoices (booking_id) 
+WHERE status <> 'Void';
 
 -- =============================================================
 -- Phase 2: Triggers & Automation

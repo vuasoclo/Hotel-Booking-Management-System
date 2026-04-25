@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar - HBMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/feather-icons"></script>
+  <link rel="stylesheet" href="css/globals.css">
+  <style>
+    /* Bổ sung CSS cho Drag & Drop */
+    .valid-drop {
+      background-color: rgba(16, 185, 129, 0.1) !important;
+      box-shadow: inset 0 0 0 2px #10B981;
+    }
+    .invalid-drop {
+      background-color: rgba(239, 68, 68, 0.1) !important;
+      box-shadow: inset 0 0 0 2px #EF4444;
+    }
+    body.dragging-invalid {
+      cursor: not-allowed !important;
+    }
+    .dragging-original {
+      opacity: 0.3;
+    }
+    /* Chỉnh lại grid để định vị % dễ dàng */
+    .block-container {
+      position: absolute;
+      left: 140px; /* Sau cột Room Label */
+      right: 0;
+      top: 0;
+      bottom: 0;
+    }
+  </style>
+</head>
+<body class="d-flex flex-column vh-100">
+
+  <header class="topbar d-flex align-items-center justify-content-between px-4 w-100">
+    <div class="d-flex align-items-center gap-3">
+      <i data-feather="box" class="text-primary"></i>
+      <span class="text-heading mb-0">Little Hotelier</span>
+    </div>
+    <div class="d-flex align-items-center gap-4">
+      <div class="text-subheading">Admin User</div>
+      <i data-feather="bell" class="text-muted"></i>
+    </div>
+  </header>
+
+  <div class="d-flex flex-grow-1 overflow-hidden">
+    <aside class="sidebar py-3 d-flex flex-column">
+      <nav class="flex-grow-1">
+        <a href="#" class="sidebar-item active"><i data-feather="calendar" class="me-2"></i> Calendar</a>
+        <a href="new-reservation.html" class="sidebar-item"><i data-feather="plus-square" class="me-2"></i> New Reservation</a>
+        <a href="#" class="sidebar-item"><i data-feather="bar-chart-2" class="me-2"></i> Statistics</a>
+      </nav>
+    </aside>
+
+    <main class="main-content flex-grow-1 d-flex flex-column overflow-hidden">
+      
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex align-items-center gap-2">
+          <div class="btn-group">
+            <button class="btn btn-outline-secondary btn-sm"><i data-feather="chevron-left"></i></button>
+            <button class="btn btn-outline-secondary btn-sm"><i data-feather="chevron-right"></i></button>
+          </div>
+          <span class="fw-bold px-2">25 Apr 2026 — 01 May 2026</span>
+          <button class="btn btn-light btn-sm border">Today</button>
+        </div>
+        <div class="d-flex gap-2">
+          <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
+            <i data-feather="zap" style="width:14px"></i> Defragment ⚡
+          </button>
+          <a href="new-reservation.html" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
+            <i data-feather="plus" style="width:14px"></i> New Reservation
+          </a>
+        </div>
+      </div>
+
+      <div class="calendar-container flex-grow-1 overflow-auto position-relative" id="calendar-wrapper">
+        
+        <div class="d-flex border-bottom sticky-top bg-white" style="z-index: 20;">
+          <div class="room-label-col room-type-header d-flex align-items-center px-3" style="height:48px">Rooms</div>
+          <div class="d-flex flex-grow-1">
+            <div class="cal-header-cell flex-fill"><span class="text-small">Fri</span><strong>25</strong></div>
+            <div class="cal-header-cell flex-fill"><span class="text-small">Sat</span><strong>26</strong></div>
+            <div class="cal-header-cell flex-fill"><span class="text-small">Sun</span><strong>27</strong></div>
+            <div class="cal-header-cell flex-fill"><span class="text-small">Mon</span><strong>28</strong></div>
+            <div class="cal-header-cell flex-fill"><span class="text-small">Tue</span><strong>29</strong></div>
+            <div class="cal-header-cell flex-fill"><span class="text-small">Wed</span><strong>30</strong></div>
+            <div class="cal-header-cell flex-fill"><span class="text-small">Thu</span><strong>01</strong></div>
+          </div>
+        </div>
+
+        <div id="calendar-grid"></div>
+
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    feather.replace();
+
+    // --- 1. MOCK DATA ---
+    const TOTAL_DAYS = 7;
+    const roomTypes = [
+      { id: 't1', name: 'Deluxe King' },
+      { id: 't2', name: 'Suite' }
+    ];
+    
+    const rooms = [
+      { id: 'r101', typeId: 't1', name: 'Room 101', status: 'Available' },
+      { id: 'r102', typeId: 't1', name: 'Room 102', status: 'Available' },
+      { id: 'r103', typeId: 't1', name: 'Room 103', status: 'Available' },
+      { id: 'r201', typeId: 't2', name: 'Room 201', status: 'Dirty' },
+      { id: 'r202', typeId: 't2', name: 'Room 202', status: 'Maintenance' },
+    ];
+
+    // start: index ngày bắt đầu (0 là ngày 25), length: số đêm
+    let bookings = [
+      { id: 'BK-00412', guest: 'John Doe', inits: 'JD', roomId: 'r101', status: 'Checked-in', start: 0, length: 3 },
+      { id: 'BK-00415', guest: 'Alice Smith', inits: 'AS', roomId: 'r102', status: 'Active', start: 1, length: 3 },
+      { id: 'BK-00418', guest: 'Bob Jones', inits: 'BJ', roomId: 'r103', status: 'Active', start: 4, length: 2 },
+    ];
+
+    // --- 2. RENDER LOGIC ---
+    const gridEl = document.getElementById('calendar-grid');
+
+    function renderCalendar() {
+      gridEl.innerHTML = '';
+      
+      roomTypes.forEach(type => {
+        // Group Header
+        gridEl.innerHTML += `<div class="room-row room-type-header align-items-center px-3">${type.name}</div>`;
+        
+        // Rooms in Group
+        const typeRooms = rooms.filter(r => r.typeId === type.id);
+        typeRooms.forEach(room => {
+          let rowHtml = `
+            <div class="room-row position-relative" data-room-id="${room.id}" data-type-id="${type.id}">
+              <div class="room-label-col d-flex align-items-center px-3 fw-medium">${room.name}</div>
+              <div class="d-flex flex-grow-1 position-relative">
+          `;
+
+          // Grid lines
+          for(let i=0; i<TOTAL_DAYS; i++) {
+             rowHtml += `<div class="border-end flex-fill" style="border-color: var(--color-neutral-200);"></div>`;
+          }
+
+          // Room Status Overlays
+          if(room.status === 'Dirty') {
+             rowHtml += `<div class="position-absolute w-100 h-100 status-dirty pointer-events-none"></div>`;
+          } else if (room.status === 'Maintenance') {
+             rowHtml += `<div class="position-absolute w-100 h-100 status-maintenance d-flex align-items-center justify-content-center text-danger">
+                           <i data-feather="lock" style="width:16px; margin-right:4px"></i> Maintenance
+                         </div>`;
+          }
+
+          // Bookings Container
+          rowHtml += `<div class="block-container" id="container-${room.id}"></div></div></div>`;
+          gridEl.innerHTML += rowHtml;
+        });
+      });
+
+      // Render Bookings
+      bookings.forEach(booking => {
+        const container = document.getElementById(`container-${booking.roomId}`);
+        if(container) {
+          const leftPct = (booking.start / TOTAL_DAYS) * 100;
+          const widthPct = (booking.length / TOTAL_DAYS) * 100;
+          const cssClass = booking.status === 'Active' ? 'cal-active' : 'cal-checked-in';
+          
+          const block = document.createElement('div');
+          block.className = `booking-block ${cssClass}`;
+          block.style.left = `${leftPct}%`;
+          block.style.width = `calc(${widthPct}% - 4px)`; // Trừ đi một chút lề phải
+          
+          // Data attributes for Drag logic
+          block.dataset.bookingId = booking.id;
+          block.dataset.status = booking.status;
+          block.dataset.start = booking.start;
+          block.dataset.length = booking.length;
+
+          block.innerHTML = `
+            <div class="block-avatar" style="${booking.status === 'Active' ? 'background: #3B82F6;' : ''}">${booking.inits}</div>
+            <strong>${booking.guest} — ${booking.id}</strong>
+          `;
+          container.appendChild(block);
+        }
+      });
+      feather.replace();
+      initDragAndDrop();
+    }
+
+    // --- 3. DRAG & DROP LOGIC (Custom Y-Axis & Validation) ---
+    function initDragAndDrop() {
+      const blocks = document.querySelectorAll('.booking-block');
+      let draggedBlock = null;
+      let ghost = null;
+      let offsetY = 0;
+      let originalRow = null;
+
+      blocks.forEach(block => {
+        // Spec: Dragable only if 'Active'
+        if(block.dataset.status !== 'Active') return;
+        
+        block.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          draggedBlock = block;
+          originalRow = block.closest('.room-row');
+          
+          const rect = block.getBoundingClientRect();
+          offsetY = e.clientY - rect.top;
+
+          // Tạo Ghost element mờ 60%
+          ghost = block.cloneNode(true);
+          ghost.style.position = 'fixed';
+          ghost.style.left = rect.left + 'px'; // Spec: Chỉ di chuyển Y, khóa cứng X
+          ghost.style.top = rect.top + 'px';
+          ghost.style.width = rect.width + 'px';
+          ghost.style.height = rect.height + 'px';
+          ghost.style.opacity = '0.6';
+          ghost.style.pointerEvents = 'none'; // Để elementFromPoint xuyên qua
+          ghost.style.zIndex = '9999';
+          document.body.appendChild(ghost);
+
+          block.classList.add('dragging-original');
+        });
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if(!draggedBlock || !ghost) return;
+
+        // Cập nhật vị trí Ghost (chỉ Y)
+        ghost.style.top = (e.clientY - offsetY) + 'px';
+
+        // Tìm Element đang được trỏ vào
+        const targetElement = document.elementFromPoint(e.clientX, e.clientY);
+        const hoveredRow = targetElement ? targetElement.closest('.room-row[data-room-id]') : null;
+
+        // Xóa highlight cũ
+        document.querySelectorAll('.room-row').forEach(r => r.classList.remove('valid-drop', 'invalid-drop'));
+        document.body.classList.remove('dragging-invalid');
+
+        if (hoveredRow) {
+          let isValid = true;
+          
+          // Rule 1: Cùng room_type_id
+          if (hoveredRow.dataset.typeId !== originalRow.dataset.typeId) {
+            isValid = false;
+          }
+
+          // Rule 2: Kiểm tra trùng lịch (Overlap)
+          if (isValid) {
+            const bStart = parseInt(draggedBlock.dataset.start);
+            const bEnd = bStart + parseInt(draggedBlock.dataset.length);
+            
+            const existingBlocks = hoveredRow.querySelectorAll('.booking-block:not(.dragging-original)');
+            existingBlocks.forEach(eb => {
+              const eStart = parseInt(eb.dataset.start);
+              const eEnd = eStart + parseInt(eb.dataset.length);
+              // Logic trùng lặp tuyến tính
+              if (bStart < eEnd && bEnd > eStart) {
+                isValid = false;
+              }
+            });
+          }
+
+          if (isValid) {
+            hoveredRow.classList.add('valid-drop');
+          } else {
+            hoveredRow.classList.add('invalid-drop');
+            document.body.classList.add('dragging-invalid');
+          }
+        }
+      });
+
+      document.addEventListener('mouseup', (e) => {
+        if(!draggedBlock || !ghost) return;
+
+        const targetElement = document.elementFromPoint(e.clientX, e.clientY);
+        const hoveredRow = targetElement ? targetElement.closest('.room-row[data-room-id]') : null;
+
+        // Nếu hợp lệ -> Thực hiện chuyển block
+        if (hoveredRow && hoveredRow.classList.contains('valid-drop')) {
+          const newRoomId = hoveredRow.dataset.roomId;
+          const bookingId = draggedBlock.dataset.bookingId;
+          
+          // Cập nhật Mock Data
+          const bData = bookings.find(b => b.id === bookingId);
+          if(bData) bData.roomId = newRoomId;
+
+          // Optimistic UI: Render lại lưới
+          renderCalendar();
+        } else {
+          // Hủy thao tác, trả về chỗ cũ
+          draggedBlock.classList.remove('dragging-original');
+        }
+
+        // Cleanup
+        ghost.remove();
+        ghost = null;
+        draggedBlock = null;
+        originalRow = null;
+        document.querySelectorAll('.room-row').forEach(r => r.classList.remove('valid-drop', 'invalid-drop'));
+        document.body.classList.remove('dragging-invalid');
+      });
+    }
+
+    // Khởi chạy
+    renderCalendar();
+  </script>
+</body>
+</html>

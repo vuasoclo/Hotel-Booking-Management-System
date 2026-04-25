@@ -1,0 +1,335 @@
+/* Font import — Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Primary — teal-blue (brand) */
+  --color-primary-50:  #EFF8FB;
+  --color-primary-100: #D0EDF5;
+  --color-primary-200: #A1DBEb;
+  --color-primary-400: #3AACCF;
+  --color-primary-600: #0D87A8;   /* default interactive */
+  --color-primary-700: #0A6B87;   /* hover */
+  --color-primary-900: #063D4F;   /* text on light */
+
+  /* Neutral */
+  --color-neutral-0:   #FFFFFF;
+  --color-neutral-50:  #F8FAFB;   /* page background */
+  --color-neutral-100: #F1F4F6;   /* sidebar, card backgrounds */
+  --color-neutral-200: #E2E8ED;   /* borders, dividers */
+  --color-neutral-400: #9AAAB5;   /* placeholder text */
+  --color-neutral-600: #5C7080;   /* secondary text */
+  --color-neutral-800: #2C3E4A;   /* body text */
+  --color-neutral-900: #1A2730;   /* headings */
+
+  /* Typography */
+  --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, monospace;
+
+  /* Bootstrap Overrides */
+  --bs-body-font-family: var(--font-sans);
+  --bs-body-color: var(--color-neutral-800);
+  --bs-body-bg: var(--color-neutral-50);
+  --bs-primary: var(--color-primary-600);
+  --bs-primary-rgb: 13, 135, 168;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: var(--color-neutral-50);
+}
+
+h1, h2, h3, h4, h5, h6, .text-heading {
+  color: var(--color-neutral-900);
+  font-weight: 600;
+}
+
+.text-display { font-size: 24px; font-weight: 700; line-height: 1.3; }
+.text-subheading { font-size: 14px; font-weight: 600; color: var(--color-neutral-600); }
+.text-small { font-size: 12px; }
+.text-mono { font-family: var(--font-mono); font-size: 13px; font-weight: 500; }
+
+/* Custom Buttons matching spec */
+.btn-primary-custom {
+  background-color: var(--color-primary-600);
+  color: var(--color-neutral-0);
+  border: none;
+  height: 36px;
+  font-weight: 500;
+  border-radius: 4px; /* radius-sm */
+  padding: 0 16px;
+}
+.btn-primary-custom:hover { background-color: var(--color-primary-700); color: #fff; }
+
+/* Global Layout Shell */
+.topbar {
+  height: 56px;
+  background-color: var(--color-neutral-0);
+  border-bottom: 1px solid var(--color-neutral-200);
+}
+
+.sidebar {
+  width: 240px;
+  background-color: var(--color-neutral-100);
+  border-right: 1px solid var(--color-neutral-200);
+}
+
+.sidebar-item {
+  height: 40px;
+  color: var(--color-neutral-800);
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  margin-bottom: 4px;
+}
+
+.sidebar-item:hover { background-color: var(--color-neutral-200); color: var(--color-neutral-900); }
+.sidebar-item.active {
+  background-color: var(--color-primary-50);
+  color: var(--color-primary-700);
+  font-weight: 600;
+  border-right: 3px solid var(--color-primary-600);
+}
+
+.main-content { padding: 24px; max-width: 1280px; margin: 0 auto; width: 100%; }
+
+/* Custom Inputs & Cards */
+.card-panel {
+  background-color: var(--color-neutral-0);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: 8px; /* radius-md */
+  box-shadow: 0 1px 2px rgba(0,0,0,.06); /* shadow-sm */
+}
+
+.form-control-custom {
+  height: 36px;
+  border: 1px solid var(--color-neutral-200);
+  border-radius: 4px;
+}
+.form-control-custom:focus {
+  border-color: var(--color-primary-600);
+  box-shadow: 0 0 0 1px var(--color-primary-600);
+}
+
+/* Table overrides */
+.table-custom thead th {
+  background-color: var(--color-neutral-50);
+  color: var(--color-neutral-600);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--color-neutral-200);
+}
+.table-custom tbody tr { height: 48px; border-bottom: 1px solid var(--color-neutral-200); }
+.table-custom tbody tr:hover { background-color: var(--color-neutral-50); }
+
+/* --- Calendar Specific Styles (§6) --- */
+
+.calendar-container {
+    background: var(--color-neutral-0);
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+}
+
+/* Header row for dates */
+.cal-header-cell {
+    min-width: 120px;
+    height: 48px;
+    border-right: 1px solid var(--color-neutral-200);
+    border-bottom: 1px solid var(--color-neutral-200);
+    background: var(--color-neutral-50);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Room Label Column (Sticky Left) */
+.room-label-col {
+    width: 140px;
+    min-width: 140px;
+    position: sticky;
+    left: 0;
+    background: var(--color-neutral-0);
+    border-right: 2px solid var(--color-neutral-200);
+    z-index: 10;
+}
+
+.room-row {
+    height: 48px;
+    border-bottom: 1px solid var(--color-neutral-200);
+    display: flex;
+    position: relative;
+}
+
+.room-type-header {
+    background-color: var(--color-neutral-100) !important;
+    font-weight: 600;
+    font-size: 12px;
+    color: var(--color-neutral-600);
+    text-transform: uppercase;
+}
+
+/* Booking Blocks Styles */
+.booking-block {
+    position: absolute;
+    height: 40px; /* 48px - 4px top/bottom padding */
+    top: 4px;
+    border-radius: var(--radius-sm);
+    padding: 4px 8px;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 5;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.booking-block:hover {
+    filter: brightness(0.95);
+    box-shadow: var(--shadow-md);
+}
+
+/* Booking Status Variants */
+.cal-active {
+    background-color: rgba(59, 130, 246, 0.15); /* --cal-active/20 */
+    border: 2px dashed #3B82F6;
+    color: #1d4ed8;
+}
+
+.cal-checked-in {
+    background-color: rgba(13, 135, 168, 0.15); /* --cal-checked-in/20 */
+    border: 2px solid #0D87A8;
+    color: #0A6B87;
+}
+
+/* Room Status Overlays */
+.status-dirty {
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(245, 158, 11, 0.1) 10px, rgba(245, 158, 11, 0.1) 20px);
+}
+
+.status-maintenance {
+    background-color: rgba(239, 68, 68, 0.2);
+    cursor: not-allowed;
+}
+
+/* Avatar in block */
+.block-avatar {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #0D87A8;
+    color: white;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 6px;
+    flex-shrink: 0;
+}
+
+/* --- Payment View Specific (§5) --- */
+.payment-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Invoice Badges */
+.badge-draft { background-color: var(--color-neutral-100); color: var(--color-neutral-600); }
+.badge-issued { background-color: var(--color-info-100); color: var(--color-info-600); }
+.badge-paid { background-color: var(--color-success-100); color: var(--color-success-600); }
+.badge-void { background-color: var(--color-danger-100); color: var(--color-danger-600); }
+
+.balance-due-highlight {
+    color: var(--color-danger-600);
+    font-weight: 700;
+}
+
+.quick-fill-btn {
+    font-size: 12px;
+    padding: 2px 8px;
+    border: 1px solid var(--color-neutral-200);
+    border-radius: 4px;
+    background: white;
+    transition: all 0.2s;
+}
+.quick-fill-btn:hover {
+    background: var(--color-primary-50);
+    border-color: var(--color-primary-400);
+}
+
+/* --- Statistics View Specific (§7) --- */
+
+/* KPI Cards */
+.stat-card {
+    background: var(--color-neutral-0);
+    border: 1px solid var(--color-neutral-200);
+    border-left: 4px solid var(--color-primary-600); /* border-l-4 accent */
+    border-radius: var(--radius-md);
+    padding: 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+.stat-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--color-neutral-900);
+    font-family: var(--font-mono);
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--color-neutral-600);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.stat-trend {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Heatmap Table (§7.3) */
+.heatmap-cell {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    margin: 2px;
+    display: inline-block;
+}
+
+/* Interpolation simulation */
+.hp-0   { background-color: var(--color-neutral-100); }
+.hp-25  { background-color: #D0EDF5; }
+.hp-50  { background-color: #A1DBEb; }
+.hp-75  { background-color: #3AACCF; }
+.hp-100 { background-color: var(--color-primary-600); }
+
+/* Chart Containers */
+.chart-container {
+    background: var(--color-neutral-0);
+    border: 1px solid var(--color-neutral-200);
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    min-height: 320px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--color-neutral-600);
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+}

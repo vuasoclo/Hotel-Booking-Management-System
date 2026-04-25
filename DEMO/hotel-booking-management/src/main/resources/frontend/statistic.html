@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Statistics - HBMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/feather-icons"></script>
+  <link rel="stylesheet" href="css/globals.css">
+</head>
+<body class="d-flex flex-column vh-100">
+
+  <header class="topbar d-flex align-items-center justify-content-between px-4 w-100">
+    <div class="d-flex align-items-center gap-3">
+      <i data-feather="box" class="text-primary"></i>
+      <span class="text-heading mb-0">Little Hotelier</span>
+    </div>
+    <div class="d-flex align-items-center gap-4">
+      <div class="text-subheading">Nguyễn Văn Hoàng</div>
+      <i data-feather="bell" class="text-muted"></i>
+    </div>
+  </header>
+
+  <div class="d-flex flex-grow-1 overflow-hidden">
+    <aside class="sidebar py-3 d-flex flex-column">
+      <nav class="flex-grow-1">
+        <a href="calendar.html" class="sidebar-item"><i data-feather="calendar" class="me-2"></i> Calendar</a>
+        <a href="new-reservation.html" class="sidebar-item"><i data-feather="plus-square" class="me-2"></i> New Reservation</a>
+        <a href="statistics.html" class="sidebar-item active"><i data-feather="bar-chart-2" class="me-2"></i> Statistics</a>
+      </nav>
+    </aside>
+
+    <main class="main-content flex-grow-1 overflow-auto">
+      
+      <div class="d-flex justify-content-between align-items-end mb-4">
+        <div>
+          <h1 class="text-display mb-0">Statistics & Reports</h1>
+        </div>
+        <div class="d-flex gap-2">
+          <select class="form-select form-control-custom" style="width: 150px;">
+            <option>Tháng này</option>
+            <option>Tháng trước</option>
+            <option>Quý này</option>
+          </select>
+          <select class="form-select form-control-custom" style="width: 150px;">
+            <option>Tất cả loại phòng</option>
+            <option>Deluxe King</option>
+            <option>Suite</option>
+          </select>
+          <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
+            <i data-feather="download" style="width:14px"></i> Xuất CSV
+          </button>
+        </div>
+      </div>
+
+      <div class="row g-3 mb-4">
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-label">Avg Occupancy</div>
+            <div class="stat-value">78.4%</div>
+            <div class="stat-trend text-success">↑ +5.2% MoM</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-value">128,400,000</div>
+            <div class="stat-trend text-success">↑ +12% MoM</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-label">Collected</div>
+            <div class="stat-value">110,200,000</div>
+            <div class="stat-trend text-muted">Bao gồm VAT</div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="stat-card">
+            <div class="stat-label">Outstanding</div>
+            <div class="stat-value text-danger">18,200,000</div>
+            <div class="stat-trend text-danger">Số dư chưa thu</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-container mb-4">
+        <h3 class="text-heading mb-4">OCCUPANCY HEATMAP</h3>
+        <div class="table-responsive">
+          <table class="table table-borderless align-middle">
+            <thead>
+              <tr class="text-small text-muted">
+                <th style="width: 120px;">Phòng</th>
+                <th>25</th><th>26</th><th>27</th><th>28</th><th>29</th><th>30</th><th>01</th><th>02</th><th>03</th><th>04</th><th>05</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="text-subheading">Deluxe King</td>
+                <td><div class="heatmap-cell hp-100"></div></td>
+                <td><div class="heatmap-cell hp-50"></div></td>
+                <td><div class="heatmap-cell hp-100"></div></td>
+                <td><div class="heatmap-cell hp-75"></div></td>
+                <td><div class="heatmap-cell hp-100"></div></td>
+                <td><div class="heatmap-cell hp-50"></div></td>
+                <td><div class="heatmap-cell hp-0"></div></td>
+                <td><div class="heatmap-cell hp-25"></div></td>
+                <td><div class="heatmap-cell hp-50"></div></td>
+                <td><div class="heatmap-cell hp-75"></div></td>
+                <td><div class="heatmap-cell hp-100"></div></td>
+              </tr>
+              <tr>
+                <td class="text-subheading">Suite</td>
+                <td><div class="heatmap-cell hp-50"></div></td>
+                <td><div class="heatmap-cell hp-100"></div></td>
+                <td><div class="heatmap-cell hp-0"></div></td>
+                <td><div class="heatmap-cell hp-0"></div></td>
+                <td><div class="heatmap-cell hp-25"></div></td>
+                <td><div class="heatmap-cell hp-50"></div></td>
+                <td><div class="heatmap-cell hp-100"></div></td>
+                <td><div class="heatmap-cell hp-75"></div></td>
+                <td><div class="heatmap-cell hp-100"></div></td>
+                <td><div class="heatmap-cell hp-50"></div></td>
+                <td><div class="heatmap-cell hp-25"></div></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="d-flex align-items-center gap-3 mt-3 pt-3 border-top">
+          <span class="text-small text-muted">Legend: 0%</span>
+          <div class="d-flex gap-1">
+            <div class="heatmap-cell hp-0" style="width:16px; height:16px;"></div>
+            <div class="heatmap-cell hp-25" style="width:16px; height:16px;"></div>
+            <div class="heatmap-cell hp-50" style="width:16px; height:16px;"></div>
+            <div class="heatmap-cell hp-75" style="width:16px; height:16px;"></div>
+            <div class="heatmap-cell hp-100" style="width:16px; height:16px;"></div>
+          </div>
+          <span class="text-small text-muted">100%</span>
+        </div>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-lg-8">
+          <div class="chart-container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+              <h3 class="text-heading mb-0">MONTHLY REVENUE</h3>
+              <div class="d-flex gap-3">
+                <div class="legend-item"><div class="legend-color" style="background: var(--color-primary-400);"></div> Rooms</div>
+                <div class="legend-item"><div class="legend-color" style="background: var(--color-warning-600);"></div> Surcharges</div>
+                <div class="legend-item"><div class="legend-color" style="background: var(--color-success-600);"></div> Services</div>
+              </div>
+            </div>
+            
+            <div class="d-flex align-items-end justify-content-between px-4" style="height: 200px;">
+              <div class="d-flex flex-column gap-1" style="width: 40px;">
+                <div style="height: 40px; background: var(--color-success-600); width: 100%;"></div>
+                <div style="height: 20px; background: var(--color-warning-600); width: 100%;"></div>
+                <div style="height: 100px; background: var(--color-primary-400); width: 100%;"></div>
+                <span class="text-small text-center mt-2">Jan</span>
+              </div>
+              <div class="d-flex flex-column gap-1" style="width: 40px;">
+                <div style="height: 30px; background: var(--color-success-600); width: 100%;"></div>
+                <div style="height: 15px; background: var(--color-warning-600); width: 100%;"></div>
+                <div style="height: 120px; background: var(--color-primary-400); width: 100%;"></div>
+                <span class="text-small text-center mt-2">Feb</span>
+              </div>
+              <div class="d-flex flex-column gap-1" style="width: 40px;">
+                <div style="height: 50px; background: var(--color-success-600); width: 100%;"></div>
+                <div style="height: 25px; background: var(--color-warning-600); width: 100%;"></div>
+                <div style="height: 90px; background: var(--color-primary-400); width: 100%;"></div>
+                <span class="text-small text-center mt-2">Mar</span>
+              </div>
+              <div class="d-flex flex-column gap-1" style="width: 40px;">
+                <div style="height: 60px; background: var(--color-success-600); width: 100%;"></div>
+                <div style="height: 30px; background: var(--color-warning-600); width: 100%;"></div>
+                <div style="height: 110px; background: var(--color-primary-400); width: 100%;"></div>
+                <span class="text-small text-center mt-2">Apr</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-4">
+          <div class="chart-container d-flex flex-column align-items-center">
+            <h3 class="text-heading mb-4 w-100">REVENUE BREAKDOWN</h3>
+            
+            <div class="position-relative" style="width: 180px; height: 180px;">
+              <svg viewBox="0 0 36 36" style="transform: rotate(-90deg);">
+                <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="var(--color-primary-400)" stroke-width="4" stroke-dasharray="74 26"></circle>
+                <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="var(--color-success-600)" stroke-width="4" stroke-dasharray="17 83" stroke-dashoffset="-74"></circle>
+                <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="var(--color-warning-600)" stroke-width="4" stroke-dasharray="9 91" stroke-dashoffset="-91"></circle>
+              </svg>
+              <div class="position-absolute top-50 left-50 translate-middle text-center">
+                <div class="text-small text-muted">Total</div>
+                <div class="fw-bold">128.4M</div>
+              </div>
+            </div>
+
+            <div class="w-100 mt-4">
+              <div class="d-flex justify-content-between text-small mb-2">
+                <span><i data-feather="circle" class="me-1" style="width:10px; fill:var(--color-primary-400); stroke:none"></i> Rooms</span>
+                <span class="fw-bold">74%</span>
+              </div>
+              <div class="d-flex justify-content-between text-small mb-2">
+                <span><i data-feather="circle" class="me-1" style="width:10px; fill:var(--color-success-600); stroke:none"></i> Services</span>
+                <span class="fw-bold">17%</span>
+              </div>
+              <div class="d-flex justify-content-between text-small">
+                <span><i data-feather="circle" class="me-1" style="width:10px; fill:var(--color-warning-600); stroke:none"></i> Surcharges</span>
+                <span class="fw-bold">9%</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    feather.replace();
+  </script>
+</body>
+</html>

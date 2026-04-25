@@ -8,12 +8,28 @@
   <script src="https://unpkg.com/feather-icons"></script>
   <link rel="stylesheet" href="css/globals.css">
   <style>
-    /* Transition để hiệu ứng mở rộng/thu hẹp mượt mà hơn */
-    .transition-layout {
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    .transition-layout { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .cursor-pointer { cursor: pointer; }
+    /* Style cho stepper trong modal */
+    .qty-stepper {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--color-neutral-200);
+      border-radius: 4px;
+      overflow: hidden;
+      width: fit-content;
     }
-    .cursor-pointer {
+    .qty-btn {
+      border: none;
+      background: var(--color-neutral-100);
+      padding: 4px 12px;
       cursor: pointer;
+    }
+    .qty-input {
+      width: 40px;
+      text-align: center;
+      border: none;
+      font-weight: 600;
     }
   </style>
 </head>
@@ -25,7 +41,7 @@
       <span class="text-heading mb-0">Little Hotelier</span>
     </div>
     <div class="d-flex align-items-center gap-4">
-      <div class="text-subheading">Admin User</div>
+      <div class="text-subheading">Nguyễn Văn Hoàng</div>
       <i data-feather="bell" class="text-muted"></i>
     </div>
   </header>
@@ -35,34 +51,30 @@
       <nav class="flex-grow-1">
         <a href="calendar.html" class="sidebar-item"><i data-feather="calendar" class="me-2"></i> Calendar</a>
         <a href="new-reservation.html" class="sidebar-item active"><i data-feather="plus-square" class="me-2"></i> New Reservation</a>
-        <a href="#" class="sidebar-item"><i data-feather="bar-chart-2" class="me-2"></i> Statistics</a>
+        <a href="statistics.html" class="sidebar-item"><i data-feather="bar-chart-2" class="me-2"></i> Statistics</a>
       </nav>
     </aside>
 
     <main class="main-content flex-grow-1 overflow-auto">
-      
       <div class="mb-4">
         <div class="text-small text-muted mb-1">Home > Reservations > New</div>
         <h1 class="text-display mb-0">New Reservation</h1>
       </div>
 
       <div class="row g-4 transition-layout">
-        
         <div class="col-lg-8 mx-auto transition-layout" id="left-panel">
           <div class="card-panel p-4 h-100">
             <h2 class="text-heading mb-4">Room Search & Selection</h2>
-            
             <div class="row g-3 mb-3">
               <div class="col-md-6">
                 <label class="text-small fw-semibold mb-1">Check-in</label>
-                <input type="datetime-local" class="form-control form-control-custom" value="2026-04-25T14:00">
+                <input type="datetime-local" id="checkin" class="form-control form-control-custom" value="2026-04-25T14:00">
               </div>
               <div class="col-md-6">
                 <label class="text-small fw-semibold mb-1">Check-out</label>
-                <input type="datetime-local" class="form-control form-control-custom" value="2026-04-26T12:00">
+                <input type="datetime-local" id="checkout" class="form-control form-control-custom" value="2026-04-26T12:00">
               </div>
             </div>
-            
             <div class="d-flex justify-content-end mb-4 border-bottom pb-4">
               <button id="btn-search" class="btn-primary-custom d-flex align-items-center gap-2">
                 <i data-feather="search" style="width: 14px; height: 14px;"></i> Search Availability
@@ -70,63 +82,32 @@
             </div>
 
             <div id="room-results-area" class="d-none">
-              
               <h3 class="text-subheading mb-3">Available Rooms</h3>
               <table class="table table-custom align-middle mb-5">
                 <thead>
-                  <tr>
-                    <th>Room Type</th>
-                    <th>Available</th>
-                    <th>Price/Night</th>
-                    <th>Action</th>
-                  </tr>
+                  <tr><th>Room Type</th><th>Available</th><th>Price/Night</th><th>Action</th></tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td class="fw-medium">Deluxe King</td>
-                    <td>4</td>
-                    <td class="text-mono">850,000 VND</td>
-                    <td><button class="btn btn-sm btn-outline-primary">+ Add</button></td>
-                  </tr>
-                  <tr>
-                    <td class="fw-medium">Suite</td>
-                    <td>2</td>
-                    <td class="text-mono">1,500,000 VND</td>
-                    <td><button class="btn btn-sm btn-outline-primary">+ Add</button></td>
-                  </tr>
+                  <tr><td class="fw-medium">Deluxe King</td><td>4</td><td class="text-mono">850,000 VND</td><td><button class="btn btn-sm btn-outline-primary">+ Add</button></td></tr>
+                  <tr><td class="fw-medium">Suite</td><td>2</td><td class="text-mono">1,500,000 VND</td><td><button class="btn btn-sm btn-outline-primary">+ Add</button></td></tr>
                 </tbody>
               </table>
 
               <h3 class="text-subheading mb-3">Selected Rooms <span class="badge bg-secondary rounded-pill">1</span></h3>
               <table class="table table-custom align-middle border">
-                <thead>
-                  <tr>
-                    <th>Room Type</th>
-                    <th>Qty</th>
-                    <th>Subtotal</th>
-                    <th></th>
-                  </tr>
-                </thead>
+                <thead><tr><th>Room Type</th><th>Qty</th><th>Subtotal</th><th></th></tr></thead>
                 <tbody>
-                  <tr>
-                    <td>Deluxe King</td>
-                    <td>1</td>
-                    <td class="text-mono">1,700,000</td>
-                    <td><i data-feather="x" class="text-danger cursor-pointer" style="width: 16px;"></i></td>
-                  </tr>
+                  <tr><td>Deluxe King</td><td>1</td><td class="text-mono">850,000</td><td><i data-feather="x" class="text-danger cursor-pointer" style="width: 16px;"></i></td></tr>
                 </tbody>
               </table>
-              <div class="text-end text-mono fw-bold mt-2 mb-4">
-                Subtotal (rooms): 1,700,000 VND
-              </div>
-
+              
               <div class="d-flex justify-content-end mt-4 pt-3 border-top" id="booking-action-wrapper">
                 <button id="btn-proceed-booking" class="btn-primary-custom d-flex align-items-center gap-2" style="height: 40px;">
                   Proceed to Booking <i data-feather="arrow-right" style="width: 16px; height: 16px;"></i>
                 </button>
               </div>
-
-            </div> </div>
+            </div>
+          </div>
         </div>
 
         <div class="col-lg-6 d-none transition-layout" id="right-panel">
@@ -137,20 +118,19 @@
               <h3 class="text-subheading border-bottom pb-2 mb-3">1. Guest Information</h3>
               <div class="d-flex gap-2 mb-3 align-items-end">
                 <div class="flex-grow-1">
-                  <label class="text-small fw-semibold mb-1">Phone Number</label>
-                  <input type="text" class="form-control form-control-custom" placeholder="0901 234 567">
+                  <label class="text-small fw-semibold mb-1">Phone Number *</label>
+                  <input type="text" id="guest-phone" class="form-control form-control-custom guest-input" placeholder="0901 234 567">
                 </div>
-                <button class="btn btn-outline-secondary h-100" style="height: 36px !important;"><i data-feather="search" style="width: 16px;"></i> Search</button>
+                <button class="btn btn-outline-secondary" style="height: 36px;"><i data-feather="search" style="width: 16px;"></i></button>
               </div>
-              
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
                   <label class="text-small fw-semibold mb-1">Full Name *</label>
-                  <input type="text" class="form-control form-control-custom" placeholder="John Doe">
+                  <input type="text" id="guest-name" class="form-control form-control-custom guest-input" placeholder="John Doe">
                 </div>
                 <div class="col-md-6">
-                  <label class="text-small fw-semibold mb-1">Email</label>
-                  <input type="email" class="form-control form-control-custom">
+                  <label class="text-small fw-semibold mb-1">Date of Birth *</label>
+                  <input type="date" id="guest-dob" class="form-control form-control-custom guest-input">
                 </div>
               </div>
             </div>
@@ -158,84 +138,167 @@
             <div class="mb-4">
               <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                 <h3 class="text-subheading mb-0">2. Additional Services</h3>
-                <button class="btn btn-sm btn-outline-primary">+ Add Service</button>
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceModal">+ Add Service</button>
               </div>
-              <table class="table table-custom align-middle mb-0">
-                <thead>
-                  <tr>
-                    <th>Service</th>
-                    <th>Unit Price</th>
-                    <th>Qty</th>
-                    <th>Subtotal</th>
-                    <th></th>
-                  </tr>
-                </thead>
+              <table class="table table-custom align-middle mb-0" id="selected-services-table">
+                <thead><tr><th>Service</th><th>Unit Price</th><th>Qty</th><th>Subtotal</th><th></th></tr></thead>
                 <tbody>
-                  <tr>
-                    <td>Airport Transfer</td>
-                    <td class="text-mono">350,000</td>
-                    <td>2</td>
-                    <td class="text-mono">700,000</td>
-                    <td><i data-feather="x" class="text-danger cursor-pointer" style="width: 16px;"></i></td>
-                  </tr>
-                </tbody>
+                  </tbody>
               </table>
             </div>
 
             <div class="bg-light p-3 rounded mb-4 border">
-              <div class="d-flex justify-content-between mb-1">
-                <span class="text-muted">Room cost</span>
-                <span class="text-mono">1,700,000</span>
-              </div>
-              <div class="d-flex justify-content-between mb-1">
-                <span class="text-muted">Services</span>
-                <span class="text-mono">700,000</span>
-              </div>
+              <div class="d-flex justify-content-between mb-1"><span class="text-muted">Room cost</span><span class="text-mono">850,000</span></div>
+              <div class="d-flex justify-content-between mb-1"><span class="text-muted">Services</span><span id="summary-service-cost" class="text-mono">0</span></div>
               <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
-                <strong class="text-heading text-primary" style="color: var(--color-primary-700) !important;">TOTAL</strong>
-                <strong class="text-display text-primary" style="color: var(--color-primary-700) !important;">2,400,000 VND</strong>
+                <strong class="text-heading text-primary">TOTAL</strong>
+                <strong id="summary-total" class="text-display text-primary">850,000 VND</strong>
               </div>
             </div>
 
             <div class="d-flex gap-3 mt-4">
               <button class="btn btn-light flex-grow-1" style="height: 40px;">Cancel</button>
-              <button class="btn-primary-custom flex-grow-1" style="height: 40px; background-color: var(--color-success-600);">Confirm Booking</button>
+              <button class="btn-primary-custom flex-grow-1" style="height: 40px;">Book Now →</button>
             </div>
-
           </div>
         </div>
       </div>
-
     </main>
+  </div>
+
+  <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+      <div class="modal-content rounded-lg border-0 shadow-lg">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title text-heading">Add Service</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-4">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0"><i data-feather="search" style="width: 16px;"></i></span>
+              <input type="text" class="form-control form-control-custom border-start-0" placeholder="Search services (e.g. Airport, Spa)...">
+            </div>
+          </div>
+          
+          <h6 class="text-subheading mb-2">Results</h6>
+          <div class="table-responsive" style="max-height: 200px;">
+            <table class="table table-custom table-sm align-middle">
+              <thead><tr><th>Service</th><th>Category</th><th>Price</th><th></th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>Airport Transfer</td><td>Transport</td><td class="text-mono">350,000</td>
+                  <td><button class="btn btn-sm btn-primary py-0" onclick="selectService('Airport Transfer', 350000)">Add</button></td>
+                </tr>
+                <tr>
+                  <td>Spa Treatment</td><td>Wellness</td><td class="text-mono">500,000</td>
+                  <td><button class="btn btn-sm btn-primary py-0" onclick="selectService('Spa Treatment', 500000)">Add</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
+            <div>
+              <span class="text-small fw-bold d-block">Quantity</span>
+              <div class="qty-stepper mt-1">
+                <button class="qty-btn" onclick="updateQty(-1)">-</button>
+                <input type="text" id="modal-qty" class="qty-input" value="1" readonly>
+                <button class="qty-btn" onclick="updateQty(1)">+</button>
+              </div>
+            </div>
+            <button class="btn-primary-custom" style="height: 40px;" data-bs-dismiss="modal" onclick="confirmAddService()">Confirm & Add</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     feather.replace();
 
+    let selectedServiceName = "";
+    let selectedServicePrice = 0;
+    let serviceTotalCost = 0;
+
     document.addEventListener("DOMContentLoaded", function() {
+      // Logic ẩn hiện panel
       const btnSearch = document.getElementById('btn-search');
       const roomResultsArea = document.getElementById('room-results-area');
-      
       const btnProceedBooking = document.getElementById('btn-proceed-booking');
-      const bookingActionWrapper = document.getElementById('booking-action-wrapper');
-      
       const leftPanel = document.getElementById('left-panel');
       const rightPanel = document.getElementById('right-panel');
 
-      btnSearch.addEventListener('click', function() {
-        roomResultsArea.classList.remove('d-none');
-        roomResultsArea.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      });
-
-      btnProceedBooking.addEventListener('click', function() {
+      btnSearch.addEventListener('click', () => roomResultsArea.classList.remove('d-none'));
+      
+      btnProceedBooking.addEventListener('click', () => {
         leftPanel.classList.remove('col-lg-8', 'mx-auto');
         leftPanel.classList.add('col-lg-6');
-        
         rightPanel.classList.remove('d-none');
-        bookingActionWrapper.classList.add('d-none');
+        document.getElementById('booking-action-wrapper').classList.add('d-none');
       });
+
+      // Logic Validation Thông tin khách hàng (§9)
+      const guestInputs = document.querySelectorAll('.guest-input');
+      const btnConfirm = document.getElementById('btn-confirm-booking');
+
+      function validateForm() {
+        const name = document.getElementById('guest-name').value.trim();
+        const phone = document.getElementById('guest-phone').value.trim();
+        const dob = document.getElementById('guest-dob').value;
+        
+        let isValid = name.length > 0 && phone.match(/^\d{9,11}$/);
+        
+        // Kiểm tra đủ 18 tuổi (§9)
+        if (dob) {
+          const birthDate = new Date(dob);
+          const age = new Date().getFullYear() - birthDate.getFullYear();
+          if (age < 18) isValid = false;
+        } else {
+          isValid = false;
+        }
+
+        btnConfirm.disabled = !isValid;
+      }
+
+      guestInputs.forEach(input => input.addEventListener('input', validateForm));
     });
+
+    // Logic Service Modal
+    function updateQty(val) {
+      const input = document.getElementById('modal-qty');
+      let current = parseInt(input.value);
+      if (current + val >= 1) input.value = current + val;
+    }
+
+    function selectService(name, price) {
+      selectedServiceName = name;
+      selectedServicePrice = price;
+    }
+
+    function confirmAddService() {
+      if (!selectedServiceName) return;
+      const qty = parseInt(document.getElementById('modal-qty').value);
+      const subtotal = selectedServicePrice * qty;
+      
+      const tbody = document.querySelector('#selected-services-table tbody');
+      const row = `<tr>
+        <td>${selectedServiceName}</td>
+        <td class="text-mono">${selectedServicePrice.toLocaleString()}</td>
+        <td>${qty}</td>
+        <td class="text-mono">${subtotal.toLocaleString()}</td>
+        <td><i data-feather="x" class="text-danger cursor-pointer" style="width: 14px;"></i></td>
+      </tr>`;
+      
+      tbody.insertAdjacentHTML('beforeend', row);
+      feather.replace();
+      
+      // Update Summary
+      serviceTotalCost += subtotal;
+      document.getElementById('summary-service-cost').innerText = serviceTotalCost.toLocaleString();
+      document.getElementById('summary-total').innerText = (850000 + serviceTotalCost).toLocaleString() + " VND";
+    }
   </script>
 </body>
 </html>

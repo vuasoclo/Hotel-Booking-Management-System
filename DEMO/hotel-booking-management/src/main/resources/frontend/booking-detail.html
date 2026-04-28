@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking Detail - HBMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://unpkg.com/feather-icons"></script>
+  <link rel="stylesheet" href="css/globals.css">
+  <style>
+    .status-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .status-active {
+      background: #EBF5FB;
+      color: #2E86C1;
+      border: 1px solid #2E86C1;
+    }
+
+    .status-checkedin {
+      background: #EAFAF1;
+      color: #27AE60;
+      border: 1px solid #27AE60;
+    }
+
+    .status-completed {
+      background: #F2F3F4;
+      color: #6B7A8D;
+      border: 1px solid #BDC3C7;
+    }
+
+    .action-bar {
+      position: sticky;
+      bottom: 0;
+      background: white;
+      border-top: 1px solid var(--color-neutral-200);
+      padding: 16px 24px;
+      z-index: 100;
+    }
+  </style>
+</head>
+
+<body class="d-flex flex-column vh-100">
+
+  <header class="topbar d-flex align-items-center justify-content-between px-4 w-100">
+    <div class="d-flex align-items-center gap-3">
+      <i data-feather="box" class="text-primary"></i>
+      <span class="text-heading mb-0">Little Hotelier</span>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+      <div class="d-flex align-items-center gap-1">
+        <span class="text-subheading" id="topbar-name">...</span>
+        <span id="topbar-role" style="display:none"></span>
+      </div>
+      <i data-feather="bell" class="text-muted"></i>
+      <button id="btn-logout" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" style="height:30px">
+        <i data-feather="log-out" style="width:14px"></i> Logout
+      </button>
+    </div>
+  </header>
+
+  <div class="d-flex flex-grow-1 overflow-hidden">
+    <aside class="sidebar py-3 d-flex flex-column">
+      <nav class="flex-grow-1">
+        <a href="calendar.html" class="sidebar-item"><i data-feather="calendar" class="me-2"></i> Calendar</a>
+        <a href="new-reservation.html" class="sidebar-item"><i data-feather="plus-square" class="me-2"></i> New
+          Reservation</a>
+        <a href="rooms.html" class="sidebar-item"><i data-feather="layout" class="me-2"></i> Rooms</a>
+        <a href="statistics.html" class="sidebar-item"><i data-feather="bar-chart-2" class="me-2"></i> Statistics</a>
+      </nav>
+    </aside>
+
+    <main class="main-content flex-grow-1 overflow-auto bg-light p-0 position-relative">
+
+      <div class="p-4 pb-0">
+        <div class="mb-4">
+          <a href="calendar.html"
+            class="text-decoration-none text-muted text-small d-flex align-items-center gap-1 mb-2">
+            <i data-feather="arrow-left" style="width: 14px;"></i> Back
+          </a>
+          <div class="d-flex justify-content-between align-items-center">
+            <h1 class="text-display mb-0">Booking #BK-00412</h1>
+            <span class="status-badge status-active" id="booking-status-badge"></span>
+          </div>
+        </div>
+
+        <div class="row g-4 mb-5">
+          <div class="col-lg-6">
+            <div class="card-panel p-4 h-100">
+              <h3 class="text-heading border-bottom pb-2 mb-3">Guest Information</h3>
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                  style="width:48px;height:48px;font-size:20px;font-weight:bold;">
+                  JD
+                </div>
+                <div>
+                  <div class="fw-bold fs-5">John Doe</div>
+                  <div class="text-muted text-small">DOB: 15/03/1990</div>
+                </div>
+              </div>
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="text-small text-muted mb-1"><i data-feather="phone"
+                      style="width:14px; margin-right:4px;"></i>Phone</div>
+                  <div class="fw-medium">0901 234 567</div>
+                </div>
+                <div class="col-6">
+                  <div class="text-small text-muted mb-1"><i data-feather="credit-card"
+                      style="width:14px; margin-right:4px;"></i>ID Card</div>
+                  <div class="fw-medium">079090012345</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card-panel p-4 h-100">
+              <h3 class="text-heading border-bottom pb-2 mb-3">Stay Details</h3>
+              <div class="row g-3">
+                <div class="col-6">
+                  <div class="text-small text-muted mb-1">Check-in</div>
+                  <div class="fw-bold">25 Apr 2026 · 14:00</div>
+                </div>
+                <div class="col-6">
+                  <div class="text-small text-muted mb-1">Check-out</div>
+                  <div class="fw-bold">28 Apr 2026 · 12:00</div>
+                  <div class="text-small text-primary">3 nights</div>
+                </div>
+                <div class="col-12 mt-3">
+                  <div class="text-small text-muted mb-1">Rooms</div>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <span class="badge bg-light text-dark border px-2 py-1">Deluxe King (R101)</span>
+                    <span class="badge bg-light text-dark border px-2 py-1">Deluxe King (R102)</span>
+                    <span class="badge bg-light text-dark border px-2 py-1">Suite (R201)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card-panel p-4 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h3 class="text-heading mb-0">Cost Breakdown</h3>
+              </div>
+
+              <div class="accordion accordion-flush mb-3" id="costAccordion">
+                <div class="accordion-item border-0">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed text-small fw-bold px-0 py-2" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#roomsCost">
+                      Rooms (9,600,000)
+                    </button>
+                  </h2>
+                  <div id="roomsCost" class="accordion-collapse collapse" data-bs-parent="#costAccordion">
+                    <div class="accordion-body p-0 pb-2 text-small">
+                      <div class="d-flex justify-content-between mb-1">
+                        <span>Deluxe King (2 x 850,000 x 3)</span>
+                        <span class="text-mono">5,100,000</span>
+                      </div>
+                      <div class="d-flex justify-content-between">
+                        <span>Suite (1 x 1,500,000 x 3)</span>
+                        <span class="text-mono">4,500,000</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item border-0">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed text-small fw-bold px-0 py-2" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#surchargesCost">
+                      Surcharges (900,000)
+                    </button>
+                  </h2>
+                  <div id="surchargesCost" class="accordion-collapse collapse" data-bs-parent="#costAccordion">
+                    <div class="accordion-body p-0 pb-2 text-small">
+                      <div class="d-flex justify-content-between">
+                        <span>Early Check-in</span>
+                        <span class="text-mono">900,000</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="accordion-item border-0">
+                  <h2 class="accordion-header">
+                    <button class="accordion-button collapsed text-small fw-bold px-0 py-2" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#servicesCost">
+                      Services (700,000)
+                    </button>
+                  </h2>
+                  <div id="servicesCost" class="accordion-collapse collapse" data-bs-parent="#costAccordion">
+                    <div class="accordion-body p-0 pb-2 text-small">
+                      <div class="d-flex justify-content-between">
+                        <span>Airport Transfer (2)</span>
+                        <span class="text-mono">700,000</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-3 border-top">
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted">Total Amount</span>
+                  <span class="text-mono fw-bold text-dark">11,200,000 VND</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted">Amount Paid</span>
+                  <span class="text-mono text-success">2,800,000 VND</span>
+                </div>
+                <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
+                  <span class="fw-bold">Balance Due</span>
+                  <span class="text-display text-danger">8,400,000 VND</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card-panel p-4 h-100">
+              <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2">
+                <h3 class="text-heading mb-0">Services</h3>
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceModal">+
+                  Add Service</button>
+              </div>
+              <table class="table table-custom align-middle mb-0 text-small">
+                <thead>
+                  <tr>
+                    <th>Service</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Airport Transfer<br><span class="text-muted" style="font-size:10px">24 Apr 10:00</span></td>
+                    <td>2</td>
+                    <td class="text-mono">700,000</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Sticky Action Bar -->
+      <div class="action-bar d-flex justify-content-end align-items-center gap-3 shadow-lg">
+        <!-- Cancel: me-auto đẩy các nút khác sang phải khi hiển; khi ẩn (d-none) tự động mất tác dụng -->
+        <button id="btn-cancel" class="btn btn-outline-danger fw-bold me-auto"
+          style="display:inline-flex;align-items:center;gap:8px">
+          <i data-feather="x" style="width:16px"></i> Cancel Booking
+        </button>
+
+        <!-- Bên phải: action group -->
+        <div class="d-flex gap-3">
+          <!-- Add Service: chỉ hiển thị khi Checked-in -->
+          <button id="btn-add-service" class="btn btn-outline-secondary fw-bold d-none" data-bs-toggle="modal"
+            data-bs-target="#serviceModal">
+            + Add Service
+          </button>
+
+          <!-- Issue Invoice: Active | Checked-in | Completed -->
+          <button id="btn-invoice" class="btn btn-outline-secondary fw-bold" data-bs-toggle="modal"
+            data-bs-target="#invoiceModal">
+            Issue Invoice
+          </button>
+
+          <!-- Record Payment: Active | Checked-in | Completed -->
+          <button id="btn-payment" class="btn btn-outline-primary fw-bold" data-bs-toggle="modal"
+            data-bs-target="#paymentModal">
+            Record Payment
+          </button>
+
+          <!-- Primary action: đổi label/màu theo status -->
+          <button id="btn-primary-action" class="btn btn-primary fw-bold px-4"
+            style="background-color: var(--color-primary-600)">
+            Check-in
+          </button>
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Service Modal -->
+  <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+      <div class="modal-content rounded-lg border-0 shadow-lg">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title text-heading">Add Service</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-4">
+            <div class="input-group">
+              <span class="input-group-text bg-white border-end-0"><i data-feather="search"
+                  style="width: 16px;"></i></span>
+              <input type="text" class="form-control form-control-custom border-start-0"
+                placeholder="Search services...">
+            </div>
+          </div>
+          <h6 class="text-subheading mb-2">Results</h6>
+          <table class="table table-custom table-sm align-middle">
+            <thead>
+              <tr>
+                <th>Service</th>
+                <th>Price</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Minibar</td>
+                <td class="text-mono">30,000</td>
+                <td><button class="btn btn-sm btn-primary py-0">Add</button></td>
+              </tr>
+              <tr>
+                <td>Spa</td>
+                <td class="text-mono">500,000</td>
+                <td><button class="btn btn-sm btn-primary py-0">Add</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Modal -->
+  <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+      <div class="modal-content rounded-lg border-0 shadow-lg">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title text-heading">Record Payment</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="mb-3 d-flex justify-content-between text-small">
+            <span class="text-muted">Balance Due</span>
+            <span class="fw-bold text-danger text-mono">8,400,000 VND</span>
+          </div>
+          <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <label class="text-small fw-semibold">Amount (VND)</label>
+              <div class="d-flex gap-1">
+                <button class="quick-fill-btn"
+                  onclick="document.getElementById('payAmount').value='2100000'">25%</button>
+                <button class="quick-fill-btn"
+                  onclick="document.getElementById('payAmount').value='4200000'">50%</button>
+                <button class="quick-fill-btn"
+                  onclick="document.getElementById('payAmount').value='8400000'">Full</button>
+              </div>
+            </div>
+            <input type="number" id="payAmount" class="form-control form-control-custom text-mono" placeholder="0">
+          </div>
+          <div class="mb-4">
+            <label class="text-small fw-semibold mb-1">Method</label>
+            <select class="form-select form-control-custom">
+              <option>Cash</option>
+              <option>Bank Transfer</option>
+              <option>Credit Card</option>
+            </select>
+          </div>
+          <button class="btn btn-primary w-100 fw-bold" style="background-color: var(--color-primary-600);"
+            data-bs-dismiss="modal">
+            Record Payment ✓
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Invoice Modal -->
+  <div class="modal fade" id="invoiceModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-md modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg">
+        <div class="modal-header border-bottom">
+          <h5 class="modal-title text-heading">Issue Invoice</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <div class="bg-light p-3 rounded mb-4">
+            <div class="d-flex justify-content-between mb-1">
+              <span class="text-muted">Total Amount</span>
+              <span class="text-mono fw-bold">11,200,000 VND</span>
+            </div>
+            <div class="d-flex justify-content-between">
+              <span class="text-muted">Amount Paid</span>
+              <span class="text-mono text-success">2,800,000 VND</span>
+            </div>
+            <div class="d-flex justify-content-between mt-2 pt-2 border-top">
+              <span class="fw-bold">Balance Due</span>
+              <span class="text-mono text-danger fw-bold">8,400,000 VND</span>
+            </div>
+          </div>
+          <p class="text-small text-muted mb-3">
+            <i data-feather="info" style="width:14px; vertical-align:middle;"></i>
+            Issue Invoice có thể gọi lại để cập nhật số liệu mới nhất.
+            Sau khi Completed, đây là bước chốt sổ cuối cùng.
+          </p>
+          <button class="btn btn-primary w-100 fw-bold" data-bs-dismiss="modal"
+            style="background-color: var(--color-primary-600)">
+            Confirm &amp; Issue Invoice
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    feather.replace();
+
+    // ─── Auth Guard ────────────────────────────────────────────────────────────
+    (function() {
+      const s = JSON.parse(sessionStorage.getItem('hbms_user') || 'null');
+      if (!s) { window.location.href = 'index.html'; return; }
+      document.getElementById('topbar-name').textContent = s.name;
+      if (s.role === 'admin') { const b = document.getElementById('topbar-role'); b.textContent='Admin'; b.className='badge bg-warning text-dark ms-1'; b.style.display='inline'; }
+      document.getElementById('btn-logout').addEventListener('click', () => { sessionStorage.removeItem('hbms_user'); window.location.href='index.html'; });
+    })();
+
+    // ─── Booking State Engine ───────────────────────────────────────────────────
+    // Cài đặt trạng thái mock — thay bằng dữ liệu thực từ API về sau
+    const BOOKING_STATUS = 'Active'; // Active | Checked-in | Completed | Cancelled
+
+    // Dùng classList thay vì style.display để tránh bị Bootstrap !important ghi đè
+    function show(el) { el.classList.remove('d-none'); }
+    function hide(el) { el.classList.add('d-none'); }
+
+    function renderActionBar(status) {
+      const btnPrimary = document.getElementById('btn-primary-action');
+      const btnCancel = document.getElementById('btn-cancel');
+      const btnInvoice = document.getElementById('btn-invoice');
+      const btnPayment = document.getElementById('btn-payment');
+      const statusBadge = document.getElementById('booking-status-badge');
+
+      [btnPrimary, btnCancel, btnInvoice, btnPayment].forEach(b => {
+        b.classList.remove('d-none');
+        b.disabled = false;
+      });
+
+      if (status === 'Active') {
+        btnPrimary.textContent = 'Check-in';
+        btnPrimary.className = 'btn btn-primary fw-bold px-4';
+        btnPrimary.style.backgroundColor = 'var(--color-primary-600)';
+        if (statusBadge) {
+          statusBadge.className = 'status-badge status-active';
+          statusBadge.textContent = 'Active';
+        }
+
+      } else if (status === 'Checked-in') {
+        btnPrimary.textContent = 'Check-out';
+        btnPrimary.className = 'btn btn-success fw-bold px-4';
+        btnPrimary.style.backgroundColor = '';
+        hide(btnCancel);
+        if (statusBadge) {
+          statusBadge.className = 'status-badge status-checkedin';
+          statusBadge.textContent = 'Checked-in';
+        }
+
+      } else if (status === 'Completed') {
+        btnPrimary.textContent = 'Completed';
+        btnPrimary.disabled = true;
+        btnPrimary.className = 'btn btn-secondary fw-bold px-4';
+        btnPrimary.style.backgroundColor = '';
+        hide(btnCancel);
+        hide(btnPayment);
+        if (statusBadge) {
+          statusBadge.className = 'status-badge status-completed';
+          statusBadge.textContent = 'Completed';
+        }
+
+      } else if (status === 'Cancelled') {
+        hide(btnPrimary);
+        hide(btnCancel);
+        hide(btnInvoice);
+        hide(btnPayment);
+        if (statusBadge) {
+          statusBadge.className = 'status-badge';
+          statusBadge.style.cssText = 'background:#FDEDEC;color:#C0392B;border:1px solid #E74C3C;padding:6px 12px;border-radius:20px;font-weight:600;font-size:13px';
+          statusBadge.textContent = 'Cancelled';
+        }
+      }
+    }
+
+    renderActionBar(BOOKING_STATUS);
+  </script>
+</body>
+
+</html>

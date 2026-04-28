@@ -405,6 +405,15 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- =============================================================
+-- [DEPRECATED] create_reservation() — Phase 3
+-- Thay thế bởi 3-step flow trong Phase 5:
+--   begin_booking() → add_room_detail_to_booking() → finalize_booking()
+-- Lý do: create_reservation() chỉ hỗ trợ 1 loại phòng per booking.
+--         Flow 3-step hỗ trợ multi room-type và idempotent retries tốt hơn.
+-- Không xóa hoàn toàn để tham khảo logic gốc.
+-- =============================================================
+/*
 CREATE OR REPLACE PROCEDURE create_reservation(
     p_hotel_id INT,
     p_customer_id INT,
@@ -415,100 +424,8 @@ CREATE OR REPLACE PROCEDURE create_reservation(
     p_is_breakfast_included BOOLEAN,
     p_idempotency_key UUID
 )
-LANGUAGE plpgsql
-AS $$
-DECLARE
-    v_booking_id INT;
-    v_cur_date DATE := p_check_in::DATE;
-    v_end_date DATE := p_check_out::DATE;
-    v_available INT;
-BEGIN
-    IF p_check_out <= p_check_in THEN
-        RAISE EXCEPTION 'INVALID_PERIOD: check_out phải lớn hơn check_in'
-        USING ERRCODE = 'P0005';
-    END IF;
-
-    IF p_quantity <= 0 THEN
-        RAISE EXCEPTION 'INVALID_QUANTITY: quantity phải lớn hơn 0'
-        USING ERRCODE = 'P0006';
-    END IF;
-
-    BEGIN
-        INSERT INTO bookings (
-            hotel_id,
-            customer_id,
-            idempotency_key,
-            check_in,
-            check_out,
-            status
-        )
-        VALUES (
-            p_hotel_id,
-            p_customer_id,
-            p_idempotency_key,
-            p_check_in,
-            p_check_out,
-            'Pending'
-        )
-        RETURNING id INTO v_booking_id;
-    EXCEPTION
-        WHEN unique_violation THEN
-            RAISE EXCEPTION 'DUPLICATE: idempotency_key % đã tồn tại', p_idempotency_key
-            USING ERRCODE = 'P0002';
-    END;
-
-    INSERT INTO booking_details (
-        booking_id,
-        room_type_id,
-        quantity,
-        agreed_price,
-        is_breakfast_included
-    )
-    VALUES (
-        v_booking_id,
-        p_room_type_id,
-        p_quantity,
-        0,
-        p_is_breakfast_included
-    );
-
-    WHILE v_cur_date < v_end_date LOOP
-        SELECT (total_inventory - total_reserved)
-        INTO v_available
-        FROM room_type_inventory
-        WHERE room_type_id = p_room_type_id
-          AND date = v_cur_date
-        FOR UPDATE;
-
-        IF v_available IS NULL THEN
-            RAISE EXCEPTION 'SYSTEM: Chưa thiết lập phòng loại % trong ngày %', p_room_type_id, v_cur_date
-            USING ERRCODE = 'P0003';
-        END IF;
-
-        IF v_available < p_quantity THEN
-            RAISE EXCEPTION 'OVERBOOKING: Không đủ phòng loại % trong ngày % (Còn: %)',
-                p_room_type_id, v_cur_date, v_available
-            USING ERRCODE = 'P0001';
-        END IF;
-
-        UPDATE room_type_inventory
-        SET total_reserved = total_reserved + p_quantity
-        WHERE room_type_id = p_room_type_id
-          AND date = v_cur_date;
-
-        v_cur_date := v_cur_date + 1;
-    END LOOP;
-
-    UPDATE bookings
-    SET status = 'Active'
-    WHERE id = v_booking_id;
-
-    PERFORM apply_time_surcharges(v_booking_id);
-
-    -- Transaction lifecycle do tầng Application quản lý.
-    -- Procedure này chỉ thực hiện DML và raise lỗi nghiệp vụ.
-END;
-$$;
+...
+*/
 
 CREATE OR REPLACE FUNCTION search_available_rooms(
     p_start_date DATE,

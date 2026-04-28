@@ -359,21 +359,3 @@ def get_statistics():
         "daily_occupancy": occupancy or [],
         "monthly_revenue": revenue or [],
     }
-
-
-# ═════════════════════════════════════════════════════════════════════════════
-# SERVE FRONTEND — Phục vụ các file HTML/CSS/JS tĩnh
-# Phải đặt SAU các API routes để không bị xung đột
-# ═════════════════════════════════════════════════════════════════════════════
-app.mount("/css", StaticFiles(directory=os.path.join(FRONTEND_DIR, "css")), name="css")
-
-@app.get("/", include_in_schema=False)
-def serve_index():
-    return FileResponse(os.path.join(FRONTEND_DIR, "index.html"))
-
-@app.get("/{page_name}.html", include_in_schema=False)
-def serve_page(page_name: str):
-    file_path = os.path.join(FRONTEND_DIR, f"{page_name}.html")
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="Trang không tồn tại.")
-    return FileResponse(file_path)

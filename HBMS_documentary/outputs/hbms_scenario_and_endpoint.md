@@ -2,8 +2,9 @@
 
 ---
 
-## Tổng quan: 5 file HTML
+## Tổng quan: 6 file HTML
 ```
+index.html           → Màn hình đăng nhập & Phân quyền
 calendar.html        → Theo dõi tổng thể
 new-reservation.html → Tạo booking mới
 booking-detail.html  → Vận hành booking (check-in → check-out → thanh toán)
@@ -15,16 +16,27 @@ statistics.html      → Báo cáo doanh thu & công suất
 
 ## Kịch bản vận hành từng View
 
+### 0. `index.html` — Đăng nhập & Khởi tạo phiên
+**Mô tả:** Cổng vào duy nhất của hệ thống.
+**Có thể làm:**
+- Đăng nhập bằng tài khoản Admin hoặc Staff.
+- Tự động lưu thông tin phiên (Name, Role, StaffID) vào `sessionStorage`.
+- Phân quyền: Giao diện các trang sau sẽ hiển thị badge "Admin" và các tính năng đặc thù nếu login bằng tài khoản admin.
+
+---
+
 ### 1. `calendar.html` — Bảng điều khiển tổng thể
 
 **Mô tả:** Màn hình chính lễ tân nhìn vào mỗi sáng. Hiển thị tất cả booking theo dạng Gantt ngang (phòng × ngày).
 
 **Có thể làm:**
 - Xem toàn bộ booking trong khoảng ngày (block màu xanh dương = Active, xanh lam = Checked-in)
+- Hover vào một booking: Tự động highlight tất cả các block thuộc cùng một `booking_id` (hỗ trợ booking nhiều phòng).
 - Kéo thả block để gán lại phòng cụ thể (`pre_assign_room`)
 - Bấm nút **Defragment** để tối ưu tự động việc phân bổ phòng (`tetrisroom_defrag`)
-- **Double-click** vào block → điều hướng sang `booking-detail.html?id=xxx`
+- **Click (Single-click)** vào block → điều hướng sang `booking-detail.html?id=xxx`
 - Bấm **+ New Reservation** trên sidebar → `new-reservation.html`
+- Bấm **Logout** trên topbar → xóa session và quay về `index.html`
 
 **Không làm được:** Xem trạng thái vật lý phòng (Dirty/Maintenance) — đó là của `rooms.html`.
 
@@ -121,3 +133,5 @@ statistics.html      → Báo cáo doanh thu & công suất
 | 17 | GET | `/api/rooms/status` | `v_room_status_now` | rooms.html |
 | 18 | POST | `/api/rooms/{id}/housekeeping` | `housekeeping_complete()` | rooms.html |
 | 19 | GET | `/api/statistics` | `v_daily_occupancy` + `v_monthly_revenue` | statistics.html |
+| 20 | POST | `/api/auth/login` | SELECT staff_id, role FROM staff | index.html |
+| 21 | POST | `/api/auth/logout` | Clear session | Topbar (all pages) |

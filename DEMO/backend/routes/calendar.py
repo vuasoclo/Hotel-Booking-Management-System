@@ -48,10 +48,20 @@ def get_calendar(start_date: str, end_date: str):
 def defragment(hotel_id: int, staff_id: int):
     """Gọi procedure tối ưu phân bổ phòng (Tetris algorithm)."""
     execute("CALL tetrisroom_defrag(%s, %s)", (hotel_id, staff_id))
+    execute("DELETE FROM room_assignments WHERE is_cancelled = TRUE")
     return {"success": True, "message": "Phân bổ phòng đã được tối ưu."}
 
 @router.post("/pre-assign")
 def pre_assign(body: PreAssignRequest):
     """Gán tay một booking vào phòng cụ thể (kéo thả trên Calendar)."""
-    execute("CALL pre_assign_room(%s, %s, %s)", (body.booking_id, body.room_id, body.staff_id))
-    return {"success": True}
+    try:
+        execute("CALL pre_assign_room(%s, %s, %s, %s)", (body.booking_id, body.old_room_id, body.room_id, body.staff_id))
+        execute("DELETE FROM room_assignments WHERE is_cancelled = TRUE")
+        return {"success": True}
+    except Exception as e:
+        err_msg = str(e)
+        if "exclude_overlapping_assignments" in err_msg:
+            return {"success": False, "error": "Phòng đã có lịch đặt khác trong thời gian này (ngay cả khi không hiển thị hết trên màn hình)."}
+        if "ROOM_TYPE_MISMATCH" in err_msg:
+            return {"success": False, "error": "Phòng này không thuộc loại phòng của booking."}
+        return {"success": False, "error": err_msg}

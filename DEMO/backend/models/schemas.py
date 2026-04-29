@@ -45,6 +45,7 @@ class RecordPaymentRequest(BaseModel):
 
 class PreAssignRequest(BaseModel):
     booking_id: int
+    old_room_id: int
     room_id: int
     staff_id: int
 

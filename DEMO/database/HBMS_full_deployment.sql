@@ -917,9 +917,10 @@ $$;
 
 -- Gap 3: Pre-assign room for Active booking
 CREATE OR REPLACE PROCEDURE pre_assign_room(
-    p_booking_id INT,
-    p_room_id    INT,
-    p_staff_id   INT
+    p_booking_id   INT,
+    p_from_room_id INT,
+    p_to_room_id   INT,
+    p_staff_id     INT
 )
 LANGUAGE plpgsql AS $$
 DECLARE
@@ -939,27 +940,25 @@ BEGIN
 
     SELECT r.room_type_id INTO v_room_type_id
     FROM rooms r
-    WHERE r.id = p_room_id;
+    WHERE r.id = p_to_room_id;
 
     IF NOT EXISTS (
         SELECT 1 FROM booking_details
         WHERE booking_id = p_booking_id AND room_type_id = v_room_type_id
     ) THEN
-        RAISE EXCEPTION 'ROOM_TYPE_MISMATCH: Phòng % không thuộc loại phòng nào trong booking %', p_room_id, p_booking_id
+        RAISE EXCEPTION 'ROOM_TYPE_MISMATCH: Phòng % không thuộc loại phòng nào trong booking %', p_to_room_id, p_booking_id
         USING ERRCODE = 'P0015';
     END IF;
 
-    -- Hủy assignment cũ cùng loại phòng trước khi gán phòng mới
-    UPDATE room_assignments ra
+    -- Hủy assignment cũ của phòng cụ thể này trước khi gán phòng mới
+    UPDATE room_assignments
     SET is_cancelled = TRUE
-    FROM rooms r
-    WHERE ra.room_id    = r.id
-      AND ra.booking_id = p_booking_id
-      AND r.room_type_id = v_room_type_id
-      AND ra.is_cancelled = FALSE;
+    WHERE booking_id   = p_booking_id
+      AND room_id      = p_from_room_id
+      AND is_cancelled = FALSE;
 
     INSERT INTO room_assignments (booking_id, room_id, check_in, check_out, is_cancelled)
-    VALUES (p_booking_id, p_room_id, v_check_in, v_check_out, FALSE);
+    VALUES (p_booking_id, p_to_room_id, v_check_in, v_check_out, FALSE);
 END;
 $$;
 

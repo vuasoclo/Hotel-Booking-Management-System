@@ -44,15 +44,17 @@
           <h1 class="text-display mb-0">Statistics & Reports</h1>
         </div>
         <div class="d-flex gap-2">
-          <select class="form-select form-control-custom" style="width: 150px;">
-            <option>Tháng này</option>
-            <option>Tháng trước</option>
-            <option>Quý này</option>
+          <select id="filter-period" class="form-select form-control-custom" style="width: 150px;">
+            <option value="all">Tất cả thời gian</option>
+            <option value="this_month">Tháng này</option>
+            <option value="last_month">Tháng trước</option>
+            <option value="this_quarter">Quý này</option>
           </select>
-          <select class="form-select form-control-custom" style="width: 150px;">
-            <option>Tất cả loại phòng</option>
-            <option>Deluxe King</option>
-            <option>Suite</option>
+          <select id="filter-room-type" class="form-select form-control-custom" style="width: 150px;">
+            <option value="">Tất cả loại phòng</option>
+            <option value="1">Standard</option>
+            <option value="2">Deluxe</option>
+            <option value="3">Suite</option>
           </select>
           <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
             <i data-feather="download" style="width:14px"></i> Xuất CSV
@@ -61,28 +63,42 @@
       </div>
 
       <div class="row g-3 mb-4">
-        <div class="col-md-3">
+        <div class="col-md-4">
           <div class="stat-card">
             <div class="stat-label">Avg Occupancy (7 days)</div>
             <div class="stat-value" id="avg-occupancy">0%</div>
             <div class="stat-trend text-muted"></div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-label">Bookings Count</div>
+            <div class="stat-value" id="bookings-count">0</div>
+            <div class="stat-trend text-muted">Tổng số booking</div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="stat-card">
+            <div class="stat-label">ADR</div>
+            <div class="stat-value" id="adr">0</div>
+            <div class="stat-trend text-muted">Average Daily Rate</div>
+          </div>
+        </div>
+        <div class="col-md-4">
           <div class="stat-card">
             <div class="stat-label">Total Revenue</div>
             <div class="stat-value" id="total-revenue">0</div>
             <div class="stat-trend text-muted"></div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
           <div class="stat-card">
             <div class="stat-label">Collected</div>
             <div class="stat-value" id="total-collected">0</div>
             <div class="stat-trend text-muted">Bao gồm VAT</div>
           </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
           <div class="stat-card">
             <div class="stat-label">Outstanding</div>
             <div class="stat-value text-danger" id="total-outstanding">0</div>
@@ -189,7 +205,13 @@
 
     async function fetchStatistics() {
       try {
-        const response = await fetch('http://localhost:9000/api/statistics');
+        const period = document.getElementById('filter-period').value;
+        const roomType = document.getElementById('filter-room-type').value;
+        
+        let url = `http://localhost:9000/api/statistics?period=${period}`;
+        if (roomType) url += `&room_type_id=${roomType}`;
+
+        const response = await fetch(url);
         if (!response.ok) throw new Error('API failed');
         const data = await response.json();
         
@@ -201,27 +223,25 @@
       }
     }
 
+    document.getElementById('filter-period').addEventListener('change', fetchStatistics);
+    document.getElementById('filter-room-type').addEventListener('change', fetchStatistics);
+
     function renderKPIs(data) {
-      let totalRev = 0;
-      let totalCollected = 0;
-      data.monthly_revenue.forEach(m => {
-        totalRev += m.total_revenue;
-        totalCollected += m.actual_collected;
-      });
-      let outstanding = totalRev - totalCollected;
+      const kpis = data.kpis || {
+        avg_occupancy_7d: 0,
+        total_revenue: 0,
+        total_collected: 0,
+        total_outstanding: 0,
+        adr: 0,
+        bookings_count: 0
+      };
 
-      let sumOcc = 0;
-      let countOcc = 0;
-      data.daily_occupancy.slice(0, 7).forEach(d => {
-        sumOcc += d.occupancy_rate;
-        countOcc++;
-      });
-      let avgOcc = countOcc ? (sumOcc / countOcc).toFixed(1) : 0;
-
-      document.getElementById('avg-occupancy').textContent = avgOcc + '%';
-      document.getElementById('total-revenue').textContent = formatMoney(totalRev);
-      document.getElementById('total-collected').textContent = formatMoney(totalCollected);
-      document.getElementById('total-outstanding').textContent = formatMoney(outstanding);
+      document.getElementById('avg-occupancy').textContent = kpis.avg_occupancy_7d + '%';
+      document.getElementById('bookings-count').textContent = kpis.bookings_count;
+      document.getElementById('adr').textContent = formatMoney(kpis.adr);
+      document.getElementById('total-revenue').textContent = formatMoney(kpis.total_revenue);
+      document.getElementById('total-collected').textContent = formatMoney(kpis.total_collected);
+      document.getElementById('total-outstanding').textContent = formatMoney(kpis.total_outstanding);
     }
 
     function renderHeatmap(daily_occupancy) {

@@ -349,7 +349,7 @@
               const res = await fetch(`http://localhost:9000/api/calendar/pre-assign`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ booking_id: parseInt(bid), room_id: parseInt(newRoomId), staff_id: session.staffId })
+                body: JSON.stringify({ booking_id: parseInt(bid), old_room_id: parseInt(origRoom), room_id: parseInt(newRoomId), staff_id: session.staffId })
               });
               if (!res.ok) throw new Error("Pre-assign failed");
               fetchCalendar();

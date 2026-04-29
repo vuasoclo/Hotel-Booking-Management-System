@@ -283,7 +283,7 @@ def get_booking_detail(booking_id: int):
         raise HTTPException(status_code=404, detail="Booking không tồn tại.")
 
     surcharges = execute("SELECT * FROM booking_surcharges WHERE booking_id = %s", (booking_id,), fetch="all")
-    assignments = execute("SELECT ra.*, r.room_number FROM room_assignments ra JOIN rooms r ON ra.room_id = r.id WHERE ra.booking_id = %s", (booking_id,), fetch="all")
+    assignments = execute("SELECT ra.*, r.room_number FROM room_assignments ra JOIN rooms r ON ra.room_id = r.id WHERE ra.booking_id = %s AND ra.is_cancelled = FALSE", (booking_id,), fetch="all")
     services = execute("SELECT su.*, s.name AS service_name, s.unit_price FROM service_usage su JOIN services s ON su.service_id = s.id WHERE su.booking_id = %s", (booking_id,), fetch="all")
 
     return {

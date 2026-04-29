@@ -84,7 +84,7 @@
             <i data-feather="arrow-left" style="width: 14px;"></i> Back
           </a>
           <div class="d-flex justify-content-between align-items-center">
-            <h1 class="text-display mb-0">Booking #BK-00412</h1>
+            <h1 class="text-display mb-0" id="booking-id-title">Booking #...</h1>
             <span class="status-badge status-active" id="booking-status-badge"></span>
           </div>
         </div>
@@ -95,24 +95,24 @@
               <h3 class="text-heading border-bottom pb-2 mb-3">Guest Information</h3>
               <div class="d-flex align-items-center gap-3 mb-3">
                 <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
-                  style="width:48px;height:48px;font-size:20px;font-weight:bold;">
-                  JD
+                  style="width:48px;height:48px;font-size:20px;font-weight:bold;" id="guest-initials">
+                  --
                 </div>
                 <div>
-                  <div class="fw-bold fs-5">John Doe</div>
-                  <div class="text-muted text-small">DOB: 15/03/1990</div>
+                  <div class="fw-bold fs-5" id="guest-name-display">Loading...</div>
+                  <div class="text-muted text-small" id="guest-dob-display">DOB: --</div>
                 </div>
               </div>
               <div class="row g-3">
                 <div class="col-6">
                   <div class="text-small text-muted mb-1"><i data-feather="phone"
                       style="width:14px; margin-right:4px;"></i>Phone</div>
-                  <div class="fw-medium">0901 234 567</div>
+                  <div class="fw-medium" id="guest-phone-display">--</div>
                 </div>
                 <div class="col-6">
                   <div class="text-small text-muted mb-1"><i data-feather="credit-card"
                       style="width:14px; margin-right:4px;"></i>ID Card</div>
-                  <div class="fw-medium">079090012345</div>
+                  <div class="fw-medium" id="guest-id-display">--</div>
                 </div>
               </div>
             </div>
@@ -124,19 +124,16 @@
               <div class="row g-3">
                 <div class="col-6">
                   <div class="text-small text-muted mb-1">Check-in</div>
-                  <div class="fw-bold">25 Apr 2026 · 14:00</div>
+                  <div class="fw-bold" id="stay-checkin">--</div>
                 </div>
                 <div class="col-6">
                   <div class="text-small text-muted mb-1">Check-out</div>
-                  <div class="fw-bold">28 Apr 2026 · 12:00</div>
-                  <div class="text-small text-primary">3 nights</div>
+                  <div class="fw-bold" id="stay-checkout">--</div>
+                  <div class="text-small text-primary" id="stay-nights">-- nights</div>
                 </div>
                 <div class="col-12 mt-3">
                   <div class="text-small text-muted mb-1">Rooms</div>
-                  <div class="d-flex gap-2 flex-wrap">
-                    <span class="badge bg-light text-dark border px-2 py-1">Deluxe King (R101)</span>
-                    <span class="badge bg-light text-dark border px-2 py-1">Deluxe King (R102)</span>
-                    <span class="badge bg-light text-dark border px-2 py-1">Suite (R201)</span>
+                  <div class="d-flex gap-2 flex-wrap" id="stay-rooms">
                   </div>
                 </div>
               </div>
@@ -153,20 +150,12 @@
                 <div class="accordion-item border-0">
                   <h2 class="accordion-header">
                     <button class="accordion-button collapsed text-small fw-bold px-0 py-2" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#roomsCost">
-                      Rooms (9,600,000)
+                      data-bs-toggle="collapse" data-bs-target="#roomsCost" id="rooms-cost-header">
+                      Rooms
                     </button>
                   </h2>
                   <div id="roomsCost" class="accordion-collapse collapse" data-bs-parent="#costAccordion">
-                    <div class="accordion-body p-0 pb-2 text-small">
-                      <div class="d-flex justify-content-between mb-1">
-                        <span>Deluxe King (2 x 850,000 x 3)</span>
-                        <span class="text-mono">5,100,000</span>
-                      </div>
-                      <div class="d-flex justify-content-between">
-                        <span>Suite (1 x 1,500,000 x 3)</span>
-                        <span class="text-mono">4,500,000</span>
-                      </div>
+                    <div class="accordion-body p-0 pb-2 text-small" id="rooms-cost-body">
                     </div>
                   </div>
                 </div>
@@ -174,16 +163,12 @@
                 <div class="accordion-item border-0">
                   <h2 class="accordion-header">
                     <button class="accordion-button collapsed text-small fw-bold px-0 py-2" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#surchargesCost">
-                      Surcharges (900,000)
+                      data-bs-toggle="collapse" data-bs-target="#surchargesCost" id="surcharges-cost-header">
+                      Surcharges
                     </button>
                   </h2>
                   <div id="surchargesCost" class="accordion-collapse collapse" data-bs-parent="#costAccordion">
-                    <div class="accordion-body p-0 pb-2 text-small">
-                      <div class="d-flex justify-content-between">
-                        <span>Early Check-in</span>
-                        <span class="text-mono">900,000</span>
-                      </div>
+                    <div class="accordion-body p-0 pb-2 text-small" id="surcharges-cost-body">
                     </div>
                   </div>
                 </div>
@@ -191,16 +176,12 @@
                 <div class="accordion-item border-0">
                   <h2 class="accordion-header">
                     <button class="accordion-button collapsed text-small fw-bold px-0 py-2" type="button"
-                      data-bs-toggle="collapse" data-bs-target="#servicesCost">
-                      Services (700,000)
+                      data-bs-toggle="collapse" data-bs-target="#servicesCost" id="services-cost-header">
+                      Services
                     </button>
                   </h2>
                   <div id="servicesCost" class="accordion-collapse collapse" data-bs-parent="#costAccordion">
-                    <div class="accordion-body p-0 pb-2 text-small">
-                      <div class="d-flex justify-content-between">
-                        <span>Airport Transfer (2)</span>
-                        <span class="text-mono">700,000</span>
-                      </div>
+                    <div class="accordion-body p-0 pb-2 text-small" id="services-cost-body">
                     </div>
                   </div>
                 </div>
@@ -209,15 +190,15 @@
               <div class="pt-3 border-top">
                 <div class="d-flex justify-content-between mb-2">
                   <span class="text-muted">Total Amount</span>
-                  <span class="text-mono fw-bold text-dark">11,200,000 VND</span>
+                  <span class="text-mono fw-bold text-dark" id="total-amount">0 VND</span>
                 </div>
                 <div class="d-flex justify-content-between mb-2">
                   <span class="text-muted">Amount Paid</span>
-                  <span class="text-mono text-success">2,800,000 VND</span>
+                  <span class="text-mono text-success" id="amount-paid">0 VND</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
                   <span class="fw-bold">Balance Due</span>
-                  <span class="text-display text-danger">8,400,000 VND</span>
+                  <span class="text-display text-danger" id="balance-due">0 VND</span>
                 </div>
               </div>
             </div>
@@ -238,12 +219,7 @@
                     <th>Subtotal</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td>Airport Transfer<br><span class="text-muted" style="font-size:10px">24 Apr 10:00</span></td>
-                    <td>2</td>
-                    <td class="text-mono">700,000</td>
-                  </tr>
+                <tbody id="services-list-body">
                 </tbody>
               </table>
             </div>
@@ -261,12 +237,6 @@
 
         <!-- Bên phải: action group -->
         <div class="d-flex gap-3">
-          <!-- Add Service: chỉ hiển thị khi Checked-in -->
-          <button id="btn-add-service" class="btn btn-outline-secondary fw-bold d-none" data-bs-toggle="modal"
-            data-bs-target="#serviceModal">
-            + Add Service
-          </button>
-
           <!-- Issue Invoice: Active | Checked-in | Completed -->
           <button id="btn-invoice" class="btn btn-outline-secondary fw-bold" data-bs-toggle="modal"
             data-bs-target="#invoiceModal">
@@ -303,7 +273,7 @@
             <div class="input-group">
               <span class="input-group-text bg-white border-end-0"><i data-feather="search"
                   style="width: 16px;"></i></span>
-              <input type="text" class="form-control form-control-custom border-start-0"
+              <input type="text" id="service-search-input" class="form-control form-control-custom border-start-0"
                 placeholder="Search services...">
             </div>
           </div>
@@ -316,17 +286,7 @@
                 <th></th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td>Minibar</td>
-                <td class="text-mono">30,000</td>
-                <td><button class="btn btn-sm btn-primary py-0">Add</button></td>
-              </tr>
-              <tr>
-                <td>Spa</td>
-                <td class="text-mono">500,000</td>
-                <td><button class="btn btn-sm btn-primary py-0">Add</button></td>
-              </tr>
+            <tbody id="services-result-body">
             </tbody>
           </table>
         </div>
@@ -363,10 +323,10 @@
           </div>
           <div class="mb-4">
             <label class="text-small fw-semibold mb-1">Method</label>
-            <select class="form-select form-control-custom">
-              <option>Cash</option>
-              <option>Bank Transfer</option>
-              <option>Credit Card</option>
+            <select class="form-select form-control-custom" id="payment-method-select">
+              <option value="Cash">Cash</option>
+              <option value="Bank Transfer">Bank Transfer</option>
+              <option value="Credit Card">Credit Card</option>
             </select>
           </div>
           <button class="btn btn-primary w-100 fw-bold" style="background-color: var(--color-primary-600);"
@@ -428,13 +388,106 @@
       document.getElementById('btn-logout').addEventListener('click', () => { sessionStorage.removeItem('hbms_user'); window.location.href='index.html'; });
     })();
 
-    // ─── Booking State Engine ───────────────────────────────────────────────────
-    // Cài đặt trạng thái mock — thay bằng dữ liệu thực từ API về sau
-    const BOOKING_STATUS = 'Active'; // Active | Checked-in | Completed | Cancelled
+    // ─── Booking Logic ────────────────────────────────────────────────────────
+    const urlParams = new URLSearchParams(window.location.search);
+    const bookingId = urlParams.get('id');
+    const session = JSON.parse(sessionStorage.getItem('hbms_user') || '{}');
+    let currentBookingData = null;
 
-    // Dùng classList thay vì style.display để tránh bị Bootstrap !important ghi đè
-    function show(el) { el.classList.remove('d-none'); }
-    function hide(el) { el.classList.add('d-none'); }
+    if (!bookingId) {
+      alert('Không tìm thấy mã booking.');
+      window.location.href = 'calendar.html';
+    }
+
+    function formatMoney(amount) {
+      return new Intl.NumberFormat('vi-VN').format(amount);
+    }
+
+    function formatDate(dateStr) {
+      if(!dateStr) return '--';
+      const d = new Date(dateStr);
+      return `${d.getDate().toString().padStart(2,'0')}/${(d.getMonth()+1).toString().padStart(2,'0')}/${d.getFullYear()}`;
+    }
+
+    function formatDateTime(dateStr) {
+      if(!dateStr) return '--';
+      const d = new Date(dateStr);
+      const day = d.toLocaleDateString('en-GB', {day: '2-digit', month: 'short', year: 'numeric'});
+      const time = d.toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
+      return `${day} · ${time}`;
+    }
+
+    async function loadBookingDetails() {
+      try {
+        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}`);
+        if (!res.ok) throw new Error("Failed to load booking");
+        const data = await res.json();
+        currentBookingData = data;
+        renderBooking(data);
+      } catch (err) {
+        console.error(err);
+        alert('Lỗi tải dữ liệu booking.');
+      }
+    }
+
+    function renderBooking(data) {
+      document.getElementById('booking-id-title').textContent = `Booking #BK-${data.booking_id.toString().padStart(5, '0')}`;
+      
+      // Guest Info
+      const inits = data.customer_name ? data.customer_name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : 'G';
+      document.getElementById('guest-initials').textContent = inits;
+      document.getElementById('guest-name-display').textContent = data.customer_name || '--';
+      document.getElementById('guest-dob-display').textContent = `DOB: ${formatDate(data.date_of_birth)}`;
+      document.getElementById('guest-phone-display').textContent = data.customer_phone || '--';
+      document.getElementById('guest-id-display').textContent = data.id_number || '--';
+
+      // Stay Details
+      document.getElementById('stay-checkin').textContent = formatDateTime(data.check_in);
+      document.getElementById('stay-checkout').textContent = formatDateTime(data.check_out);
+      document.getElementById('stay-nights').textContent = `${data.nights} nights`;
+      
+      const roomsHtml = data.room_assignments.map(ra => 
+        `<span class="badge bg-light text-dark border px-2 py-1">R${ra.room_number}</span>`
+      ).join('');
+      document.getElementById('stay-rooms').innerHTML = roomsHtml;
+
+      // Cost Breakdown Calculations
+      let surchargesTotal = data.surcharges.reduce((sum, s) => sum + Number(s.amount), 0);
+      let servicesTotal = data.services.reduce((sum, s) => sum + (Number(s.quantity) * Number(s.unit_price)), 0);
+      let totalAmount = Number(data.total_amount);
+      let amountPaid = Number(data.amount_paid);
+      let roomsTotal = totalAmount - surchargesTotal - servicesTotal;
+      if (roomsTotal < 0) roomsTotal = 0; // Fallback
+
+      document.getElementById('rooms-cost-header').textContent = `Rooms (${formatMoney(roomsTotal)})`;
+      document.getElementById('rooms-cost-body').innerHTML = `<div class="d-flex justify-content-between"><span>Base Rooms Cost</span><span class="text-mono">${formatMoney(roomsTotal)}</span></div>`;
+
+      document.getElementById('surcharges-cost-header').textContent = `Surcharges (${formatMoney(surchargesTotal)})`;
+      document.getElementById('surcharges-cost-body').innerHTML = data.surcharges.map(s => 
+        `<div class="d-flex justify-content-between mb-1"><span>Fee</span><span class="text-mono">${formatMoney(s.amount)}</span></div>`
+      ).join('') || 'No surcharges';
+
+      document.getElementById('services-cost-header').textContent = `Services (${formatMoney(servicesTotal)})`;
+      document.getElementById('services-cost-body').innerHTML = data.services.map(s => 
+        `<div class="d-flex justify-content-between mb-1"><span>${s.service_name} (${s.quantity})</span><span class="text-mono">${formatMoney(s.quantity * s.unit_price)}</span></div>`
+      ).join('') || 'No services used';
+
+      document.getElementById('total-amount').textContent = `${formatMoney(totalAmount)} VND`;
+      document.getElementById('amount-paid').textContent = `${formatMoney(amountPaid)} VND`;
+      document.getElementById('balance-due').textContent = `${formatMoney(totalAmount - amountPaid)} VND`;
+
+      // Services List Table
+      document.getElementById('services-list-body').innerHTML = data.services.map(s => `
+        <tr>
+          <td>${s.service_name}<br><span class="text-muted" style="font-size:10px">${formatDateTime(s.used_at)}</span></td>
+          <td>${s.quantity}</td>
+          <td class="text-mono">${formatMoney(s.quantity * s.unit_price)}</td>
+        </tr>
+      `).join('');
+      feather.replace();
+
+      renderActionBar(data.status);
+    }
 
     function renderActionBar(status) {
       const btnPrimary = document.getElementById('btn-primary-action');
@@ -452,6 +505,9 @@
         btnPrimary.textContent = 'Check-in';
         btnPrimary.className = 'btn btn-primary fw-bold px-4';
         btnPrimary.style.backgroundColor = 'var(--color-primary-600)';
+        btnPrimary.onclick = handleCheckIn;
+        btnCancel.onclick = handleCancel;
+
         if (statusBadge) {
           statusBadge.className = 'status-badge status-active';
           statusBadge.textContent = 'Active';
@@ -461,7 +517,9 @@
         btnPrimary.textContent = 'Check-out';
         btnPrimary.className = 'btn btn-success fw-bold px-4';
         btnPrimary.style.backgroundColor = '';
-        hide(btnCancel);
+        btnPrimary.onclick = handleCheckOut;
+        
+        btnCancel.classList.add('d-none');
         if (statusBadge) {
           statusBadge.className = 'status-badge status-checkedin';
           statusBadge.textContent = 'Checked-in';
@@ -472,18 +530,22 @@
         btnPrimary.disabled = true;
         btnPrimary.className = 'btn btn-secondary fw-bold px-4';
         btnPrimary.style.backgroundColor = '';
-        hide(btnCancel);
-        hide(btnPayment);
+        
+        btnCancel.classList.add('d-none');
+        btnPayment.classList.add('d-none'); // Can't pay if completed? Wait, yes you can if balance > 0, but usually balance is 0. Let's hide it or disable if balance is 0.
+        btnAddService.classList.add('d-none');
+
         if (statusBadge) {
           statusBadge.className = 'status-badge status-completed';
           statusBadge.textContent = 'Completed';
         }
 
       } else if (status === 'Cancelled') {
-        hide(btnPrimary);
-        hide(btnCancel);
-        hide(btnInvoice);
-        hide(btnPayment);
+        btnPrimary.classList.add('d-none');
+        btnCancel.classList.add('d-none');
+        btnInvoice.classList.add('d-none');
+        btnPayment.classList.add('d-none');
+        
         if (statusBadge) {
           statusBadge.className = 'status-badge';
           statusBadge.style.cssText = 'background:#FDEDEC;color:#C0392B;border:1px solid #E74C3C;padding:6px 12px;border-radius:20px;font-weight:600;font-size:13px';
@@ -492,7 +554,179 @@
       }
     }
 
-    renderActionBar(BOOKING_STATUS);
+    // ─── API Action Handlers ────────────────────────────────────────────────
+    
+    async function handleCheckIn() {
+      if(!currentBookingData || currentBookingData.room_assignments.length === 0) return;
+      // Note: Backend logic currently asks for room_id in CheckInRequest. 
+      // This system seems to allow multiple rooms, so let's just pick the first room_id for the API.
+      const roomId = currentBookingData.room_assignments[0].room_id;
+      
+      try {
+        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/checkin`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ room_id: roomId, staff_id: session.staff_id || 1 })
+        });
+        if(res.ok) {
+          alert('Check-in successful!');
+          loadBookingDetails();
+        } else {
+          const err = await res.text();
+          alert('Failed to check-in: ' + err);
+        }
+      } catch(err) { console.error(err); alert('Lỗi mạng khi Check-in.'); }
+    }
+
+    async function handleCheckOut() {
+      try {
+        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/checkout`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ staff_id: session.staff_id || 1 })
+        });
+        if(res.ok) {
+          alert('Check-out successful!');
+          loadBookingDetails();
+        } else {
+          const err = await res.text();
+          alert('Failed to check-out: ' + err);
+        }
+      } catch(err) { console.error(err); alert('Lỗi mạng khi Check-out.'); }
+    }
+
+    async function handleCancel() {
+      if(!confirm("Are you sure you want to cancel this booking?")) return;
+      try {
+        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/cancel`, {
+          method: 'POST'
+        });
+        if(res.ok) {
+          alert('Booking cancelled.');
+          loadBookingDetails();
+        } else {
+          const err = await res.text();
+          alert('Failed to cancel: ' + err);
+        }
+      } catch(err) { console.error(err); alert('Lỗi mạng khi Cancel.'); }
+    }
+
+    // Invoice Logic
+    document.getElementById('btn-invoice').addEventListener('click', () => {
+      // Set values in invoice modal
+      if(currentBookingData) {
+        document.querySelector('#invoiceModal .bg-light span:nth-child(2)').textContent = `${formatMoney(currentBookingData.total_amount)} VND`;
+        document.querySelector('#invoiceModal .text-success').textContent = `${formatMoney(currentBookingData.amount_paid)} VND`;
+        document.querySelector('#invoiceModal .text-danger').textContent = `${formatMoney(currentBookingData.total_amount - currentBookingData.amount_paid)} VND`;
+      }
+    });
+
+    document.querySelector('#invoiceModal .btn-primary').addEventListener('click', async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/invoice`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ staff_id: session.staff_id || 1 })
+        });
+        if(res.ok) {
+          alert('Invoice issued successfully.');
+          loadBookingDetails();
+        } else {
+          const err = await res.text();
+          alert('Failed to issue invoice: ' + err);
+        }
+      } catch(err) { console.error(err); }
+    });
+
+    // Payment Logic
+    document.getElementById('btn-payment').addEventListener('click', () => {
+      if(currentBookingData) {
+        const balance = currentBookingData.total_amount - currentBookingData.amount_paid;
+        document.querySelector('#paymentModal .text-danger').textContent = `${formatMoney(balance)} VND`;
+        document.getElementById('payAmount').value = balance;
+        // Update quick fill buttons
+        const qf = document.querySelectorAll('.quick-fill-btn');
+        if(qf.length >= 3) {
+           qf[0].onclick = () => document.getElementById('payAmount').value = Math.round(balance * 0.25);
+           qf[1].onclick = () => document.getElementById('payAmount').value = Math.round(balance * 0.50);
+           qf[2].onclick = () => document.getElementById('payAmount').value = balance;
+        }
+      }
+    });
+
+    document.querySelector('#paymentModal .btn-primary').addEventListener('click', async () => {
+      const amount = Number(document.getElementById('payAmount').value);
+      const method = document.getElementById('payment-method-select').value || 'Cash';
+      if(!amount || amount <= 0) return;
+      try {
+        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/payment`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ amount: amount, payment_method: method, staff_id: session.staff_id || 1 })
+        });
+        if(res.ok) {
+          alert('Payment recorded!');
+          const modal = bootstrap.Modal.getInstance(document.getElementById('paymentModal'));
+          if (modal) modal.hide();
+          loadBookingDetails();
+        } else {
+          const err = await res.text();
+          alert('Failed to record payment: ' + err);
+        }
+      } catch(err) { console.error(err); }
+    });
+
+    // Service Logic
+    let searchTimeout;
+    document.getElementById('service-search-input').addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(async () => {
+        const q = e.target.value.trim();
+        if (!q) {
+           document.getElementById('services-result-body').innerHTML = '';
+           return;
+        }
+        try {
+          const res = await fetch(`http://localhost:8000/api/services/search?q=${encodeURIComponent(q)}&hotel_id=1`);
+          if (res.ok) {
+            const data = await res.json();
+            const tbody = document.getElementById('services-result-body');
+            tbody.innerHTML = '';
+            data.forEach(srv => {
+              tbody.innerHTML += `
+                <tr>
+                  <td>${srv.name}</td>
+                  <td class="text-mono">${formatMoney(srv.price)}</td>
+                  <td><button class="btn btn-sm btn-primary py-0" onclick="addServiceToBooking(${srv.id})">Add</button></td>
+                </tr>
+              `;
+            });
+          }
+        } catch (err) { console.error(err); }
+      }, 300);
+    });
+
+    window.addServiceToBooking = async function(serviceId) {
+      try {
+        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/services`, {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ service_id: serviceId, quantity: 1, staff_id: session.staff_id || 1 })
+        });
+        if(res.ok) {
+          alert('Service added!');
+          const modal = bootstrap.Modal.getInstance(document.getElementById('serviceModal'));
+          if (modal) modal.hide();
+          loadBookingDetails();
+        } else {
+          const err = await res.text();
+          alert('Failed to add service: ' + err);
+        }
+      } catch(err) { console.error(err); }
+    };
+
+    // Initial Load
+    loadBookingDetails();
   </script>
 </body>
 

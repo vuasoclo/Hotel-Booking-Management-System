@@ -11,12 +11,21 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from typing import Optional
 from database import get_conn
+from fastapi.middleware.cors import CORSMiddleware
 import os
 
 app = FastAPI(
     title="HBMS — Hotel Booking Management System",
     description="Backend API cho đồ án DBMS. Tất cả logic nghiệp vụ nằm trong PostgreSQL Stored Procedures.",
     version="1.0.0",
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # ─── Đường dẫn tới thư mục Frontend ──────────────────────────────────────────
@@ -29,13 +38,13 @@ class LoginRequest(BaseModel):
     password: str
 
 class CustomerLookupRequest(BaseModel):
-    phone: str
+    phone_number: str
 
 class BeginBookingRequest(BaseModel):
     hotel_id: int
     customer_id: int
-    check_in: str       # ISO 8601: "2026-04-28T14:00:00"
-    check_out: str      # ISO 8601: "2026-04-30T12:00:00"
+    check_in_date: str
+    check_out_date: str
     idempotency_key: str
 
 class AddRoomDetailRequest(BaseModel):
@@ -44,7 +53,7 @@ class AddRoomDetailRequest(BaseModel):
     is_breakfast_included: bool
 
 class FinalizeBookingRequest(BaseModel):
-    staff_id: int
+    staff_id: Optional[int] = None
 
 class AddServiceRequest(BaseModel):
     service_id: int
@@ -52,6 +61,7 @@ class AddServiceRequest(BaseModel):
     staff_id: int
 
 class CheckInRequest(BaseModel):
+    room_id: int
     staff_id: int
 
 class CheckOutRequest(BaseModel):
@@ -66,8 +76,9 @@ class RecordPaymentRequest(BaseModel):
     staff_id: int
 
 class PreAssignRequest(BaseModel):
-    booking_id: str
+    booking_id: int
     room_id: int
+    staff_id: int
 
 # ─── Helper ───────────────────────────────────────────────────────────────────
 
@@ -102,7 +113,7 @@ def login(body: LoginRequest):
     Trả về: { staff_id, name, role }
     """
     result = execute(
-        "SELECT id AS staff_id, full_name AS name, role FROM staff WHERE username = %s AND password_hash = %s",
+        "SELECT id AS staff_id, name, role FROM staff WHERE username = %s AND password_hash = %s",
         (body.username, body.password),
         fetch="one"
     )
@@ -125,29 +136,55 @@ def logout():
 def get_calendar(start_date: str, end_date: str):
     """
     Lấy dữ liệu cho Gantt calendar.
+    Trả về TẤT CẢ phòng (LEFT JOIN) — phòng không có booking vẫn xuất hiện.
     Query params: start_date=2026-04-25&end_date=2026-05-01
     """
     result = execute(
-        "SELECT * FROM v_calendar WHERE check_in < %s AND check_out > %s",
+        """
+        SELECT
+            r.hotel_id,
+            rt.id           AS room_type_id,
+            rt.type_name,
+            r.id            AS room_id,
+            r.room_number,
+            r.status        AS room_status,
+            ra.id           AS assignment_id,
+            b.id            AS booking_id,
+            b.status        AS booking_status,
+            c.full_name     AS customer_name,
+            c.phone_number  AS customer_phone,
+            ra.check_in,
+            ra.check_out
+        FROM rooms r
+        JOIN room_types rt ON rt.id = r.room_type_id
+        LEFT JOIN room_assignments ra
+            ON ra.room_id = r.id
+            AND ra.is_cancelled = FALSE
+            AND ra.check_in  < %s::DATE
+            AND ra.check_out > %s::DATE
+        LEFT JOIN bookings b
+            ON b.id = ra.booking_id
+            AND b.status IN ('Active', 'Checked-in')
+        LEFT JOIN customers c ON c.id = b.customer_id
+        ORDER BY rt.type_name, r.room_number, ra.check_in
+        """,
         (end_date, start_date),
         fetch="all"
     )
     return result or []
 
 
-# #2 — CALENDAR: POST /api/calendar/defragment
 @app.post("/api/calendar/defragment", tags=["Calendar"])
-def defragment(hotel_id: int):
+def defragment(hotel_id: int, staff_id: int):
     """Gọi procedure tối ưu phân bổ phòng (Tetris algorithm)."""
-    execute("CALL tetrisroom_defrag(%s)", (hotel_id,))
+    execute("CALL tetrisroom_defrag(%s, %s)", (hotel_id, staff_id))
     return {"success": True, "message": "Phân bổ phòng đã được tối ưu."}
 
 
-# #3 — CALENDAR: POST /api/calendar/pre-assign
 @app.post("/api/calendar/pre-assign", tags=["Calendar"])
 def pre_assign(body: PreAssignRequest):
     """Gán tay một booking vào phòng cụ thể (kéo thả trên Calendar)."""
-    execute("CALL pre_assign_room(%s, %s)", (body.booking_id, body.room_id))
+    execute("CALL pre_assign_room(%s, %s, %s)", (body.booking_id, body.room_id, body.staff_id))
     return {"success": True}
 
 
@@ -194,8 +231,8 @@ def lookup_customer(body: CustomerLookupRequest):
     Trả về thông tin nếu đã có, null nếu chưa có.
     """
     result = execute(
-        "SELECT id, full_name, phone, id_number, date_of_birth FROM customers WHERE phone = %s",
-        (body.phone,),
+        "SELECT id AS customer_id, full_name, phone_number, identity_card, date_of_birth FROM customers WHERE phone_number = %s",
+        (body.phone_number,),
         fetch="one"
     )
     return result  # None nếu không tìm thấy — Frontend tự hiểu là khách mới
@@ -212,7 +249,7 @@ def begin_booking(body: BeginBookingRequest):
     """
     result = execute(
         "CALL begin_booking(%s, %s, %s::TIMESTAMP, %s::TIMESTAMP, %s::UUID)",
-        (body.hotel_id, body.customer_id, body.check_in, body.check_out, body.idempotency_key),
+        (body.hotel_id, body.customer_id, body.check_in_date, body.check_out_date, body.idempotency_key),
         fetch="one"
     )
     return result
@@ -240,8 +277,8 @@ def finalize_booking(booking_id: int, body: FinalizeBookingRequest):
     Sau bước này booking sẽ hiển thị trên Calendar.
     """
     execute(
-        "CALL finalize_booking(%s, %s)",
-        (booking_id, body.staff_id)
+        "CALL finalize_booking(%s)",
+        (booking_id,)
     )
     return {"success": True}
 
@@ -253,10 +290,30 @@ def get_booking_detail(booking_id: int):
     Lấy toàn bộ thông tin chi tiết của 1 booking.
     Gọi view v_booking_summary + bảng surcharges + room_assignments.
     """
-    summary = execute(
-        "SELECT * FROM v_booking_summary WHERE booking_id = %s",
-        (booking_id,), fetch="one"
-    )
+    summary = execute("""
+        SELECT
+            b.id            AS booking_id,
+            b.status,
+            b.check_in,
+            b.check_out,
+            b.total_amount,
+            b.amount_paid,
+            (b.total_amount - b.amount_paid) AS balance,
+            c.full_name     AS customer_name,
+            c.phone_number  AS customer_phone,
+            c.identity_card AS id_number,
+            c.date_of_birth,
+            STRING_AGG(DISTINCT rt.type_name, ', ') AS room_types,
+            GREATEST((b.check_out::DATE - b.check_in::DATE), 1) AS nights
+        FROM bookings b
+        JOIN customers c   ON c.id  = b.customer_id
+        JOIN booking_details bd ON bd.booking_id = b.id
+        JOIN room_types rt ON rt.id = bd.room_type_id
+        WHERE b.id = %s
+        GROUP BY b.id, b.status, b.check_in, b.check_out,
+                 b.total_amount, b.amount_paid,
+                 c.full_name, c.phone_number, c.identity_card, c.date_of_birth
+    """, (booking_id,), fetch="one")
     if not summary:
         raise HTTPException(status_code=404, detail="Booking không tồn tại.")
 
@@ -269,7 +326,7 @@ def get_booking_detail(booking_id: int):
         (booking_id,), fetch="all"
     )
     services = execute(
-        "SELECT su.*, s.name AS service_name FROM service_usage su JOIN services s ON su.service_id = s.id WHERE su.booking_id = %s",
+        "SELECT su.*, s.name AS service_name, s.unit_price FROM service_usage su JOIN services s ON su.service_id = s.id WHERE su.booking_id = %s",
         (booking_id,), fetch="all"
     )
 
@@ -286,7 +343,7 @@ def get_booking_detail(booking_id: int):
 def search_services(q: str = ""):
     """Tìm kiếm dịch vụ theo tên. Query param: q=spa"""
     result = execute(
-        "SELECT id, name, price FROM services WHERE name ILIKE %s",
+        "SELECT id, name, unit_price as price FROM services WHERE name ILIKE %s",
         (f"%{q}%",), fetch="all"
     )
     return result or []
@@ -307,7 +364,7 @@ def add_service(booking_id: int, body: AddServiceRequest):
 @app.post("/api/bookings/{booking_id}/checkin", tags=["Bookings"])
 def checkin(booking_id: int, body: CheckInRequest):
     """Check-in: chuyển booking từ Active → Checked-in."""
-    execute("CALL check_in_booking(%s, %s)", (booking_id, body.staff_id))
+    execute("CALL check_in_booking(%s, %s, %s)", (booking_id, body.room_id, body.staff_id))
     return {"success": True}
 
 
@@ -343,8 +400,8 @@ def issue_invoice(booking_id: int, body: IssueInvoiceRequest):
 def record_payment(booking_id: int, body: RecordPaymentRequest):
     """Ghi nhận thanh toán cho booking."""
     execute(
-        "CALL record_payment(%s, %s, %s, %s)",
-        (booking_id, body.amount, body.payment_method, body.staff_id)
+        "CALL record_payment(%s, %s, %s)",
+        (booking_id, body.amount, body.staff_id)
     )
     return {"success": True}
 
@@ -354,7 +411,7 @@ def record_payment(booking_id: int, body: RecordPaymentRequest):
 def get_statistics():
     """Lấy dữ liệu dashboard: KPI, occupancy heatmap, revenue chart."""
     occupancy = execute("SELECT * FROM v_daily_occupancy ORDER BY date DESC LIMIT 30", fetch="all")
-    revenue   = execute("SELECT * FROM v_monthly_revenue ORDER BY month DESC LIMIT 12", fetch="all")
+    revenue   = execute("SELECT * FROM v_monthly_revenue ORDER BY report_month DESC LIMIT 12", fetch="all")
     return {
         "daily_occupancy": occupancy or [],
         "monthly_revenue": revenue or [],

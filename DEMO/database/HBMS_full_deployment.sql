@@ -66,6 +66,8 @@ CREATE TABLE IF NOT EXISTS staff (
     hotel_id INT REFERENCES hotels(id),
     name VARCHAR(100) NOT NULL,
     role VARCHAR(50) NOT NULL,
+    username VARCHAR(50) UNIQUE,
+    password_hash VARCHAR(255),
     created_at TIMESTAMP DEFAULT NOW(),
     updated_at TIMESTAMP DEFAULT NOW()
 );
@@ -508,8 +510,15 @@ BEGIN
         USING ERRCODE = 'P0010';
     END IF;
 
-    INSERT INTO room_assignments (booking_id, room_id, check_in, check_out, is_cancelled)
-    VALUES (p_booking_id, p_room_id, v_check_in, v_check_out, FALSE);
+    IF NOT EXISTS (
+        SELECT 1 FROM room_assignments 
+        WHERE booking_id = p_booking_id 
+          AND room_id = p_room_id 
+          AND is_cancelled = FALSE
+    ) THEN
+        INSERT INTO room_assignments (booking_id, room_id, check_in, check_out, is_cancelled)
+        VALUES (p_booking_id, p_room_id, v_check_in, v_check_out, FALSE);
+    END IF;
 
     UPDATE rooms
     SET status = 'Occupied',
@@ -898,8 +907,8 @@ BEGIN
     SET amount_paid = amount_paid + p_amount,
         balance     = balance - p_amount,
         status      = CASE
-                        WHEN (amount_paid + p_amount) >= total_amount THEN 'Paid'
-                        ELSE 'Issued'
+                        WHEN (amount_paid + p_amount) >= total_amount THEN 'Paid'::invoice_status
+                        ELSE 'Issued'::invoice_status
                       END
     WHERE booking_id = p_booking_id
       AND status <> 'Void';
@@ -940,6 +949,15 @@ BEGIN
         USING ERRCODE = 'P0015';
     END IF;
 
+    -- Hủy assignment cũ cùng loại phòng trước khi gán phòng mới
+    UPDATE room_assignments ra
+    SET is_cancelled = TRUE
+    FROM rooms r
+    WHERE ra.room_id    = r.id
+      AND ra.booking_id = p_booking_id
+      AND r.room_type_id = v_room_type_id
+      AND ra.is_cancelled = FALSE;
+
     INSERT INTO room_assignments (booking_id, room_id, check_in, check_out, is_cancelled)
     VALUES (p_booking_id, p_room_id, v_check_in, v_check_out, FALSE);
 END;
@@ -965,13 +983,11 @@ SELECT
     b.amount_paid,
     (b.total_amount - b.amount_paid)    AS balance,
     b.updated_at            AS booking_updated_at
-FROM room_assignments ra
-JOIN rooms          r   ON r.id   = ra.room_id
-JOIN room_types     rt  ON rt.id  = r.room_type_id
-JOIN bookings       b   ON b.id   = ra.booking_id
-JOIN customers      c   ON c.id   = b.customer_id
-WHERE ra.is_cancelled = FALSE
-  AND b.status IN ('Active', 'Checked-in');
+FROM rooms r
+JOIN room_types rt ON rt.id = r.room_type_id
+LEFT JOIN room_assignments ra ON ra.room_id = r.id AND ra.is_cancelled = FALSE
+LEFT JOIN bookings b ON b.id = ra.booking_id AND b.status IN ('Active', 'Checked-in')
+LEFT JOIN customers c ON c.id = b.customer_id;
 
 -- Gap 5: TetrisRoom defragmentation
 CREATE OR REPLACE PROCEDURE tetrisroom_defrag(

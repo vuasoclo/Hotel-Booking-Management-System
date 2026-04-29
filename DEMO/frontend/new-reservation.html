@@ -89,47 +89,22 @@
             </div>
 
             <div id="room-results-area" class="d-none">
-              <div class="alert alert-warning text-small py-2 mb-3" role="alert">
+              <div class="alert alert-warning text-small py-2 mb-3 d-none" id="early-checkin-warning" role="alert">
                 <i data-feather="zap" style="width: 14px; height: 14px;"></i> Check-in trước 14:00 sẽ phát sinh phụ thu Early Check-in.
               </div>
               <h3 class="text-subheading mb-3">Available Rooms</h3>
-              <table class="table table-custom align-middle mb-5">
+              <table class="table table-custom align-middle mb-5" id="available-rooms-table">
                 <thead>
                   <tr><th>Room Type</th><th>Available</th><th>Price/Night</th><th>Action</th></tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td class="fw-medium">Deluxe King</td>
-                    <td>4</td>
-                    <td class="text-mono">850,000 VND</td>
-                    <td>
-                      <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="breakfast-deluxe">
-                        <label class="form-check-label text-small" for="breakfast-deluxe">+ Breakfast (200k)</label>
-                      </div>
-                      <button class="btn btn-sm btn-outline-primary">+ Add</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="fw-medium">Suite</td>
-                    <td>2</td>
-                    <td class="text-mono">1,500,000 VND</td>
-                    <td>
-                      <div class="form-check form-switch mb-2">
-                        <input class="form-check-input" type="checkbox" id="breakfast-suite">
-                        <label class="form-check-label text-small" for="breakfast-suite">+ Breakfast (200k)</label>
-                      </div>
-                      <button class="btn btn-sm btn-outline-primary">+ Add</button>
-                    </td>
-                  </tr>
                 </tbody>
               </table>
 
-              <h3 class="text-subheading mb-3">Selected Rooms <span class="badge bg-secondary rounded-pill">1</span></h3>
-              <table class="table table-custom align-middle border">
+              <h3 class="text-subheading mb-3">Selected Rooms <span class="badge bg-secondary rounded-pill" id="selected-count">0</span></h3>
+              <table class="table table-custom align-middle border" id="selected-rooms-table">
                 <thead><tr><th>Room Type</th><th>Qty</th><th>Subtotal</th><th></th></tr></thead>
                 <tbody>
-                  <tr><td>Deluxe King</td><td>1</td><td class="text-mono">850,000</td><td><i data-feather="x" class="text-danger cursor-pointer" style="width: 16px;"></i></td></tr>
                 </tbody>
               </table>
               
@@ -153,7 +128,7 @@
                   <label class="text-small fw-semibold mb-1">Phone Number *</label>
                   <input type="text" id="guest-phone" class="form-control form-control-custom guest-input" placeholder="0901 234 567">
                 </div>
-                <button class="btn btn-outline-secondary" style="height: 36px;"><i data-feather="search" style="width: 16px;"></i></button>
+                <button class="btn btn-outline-secondary" style="height: 36px;" id="btn-guest-lookup"><i data-feather="search" style="width: 16px;"></i></button>
               </div>
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
@@ -161,6 +136,10 @@
                   <input type="text" id="guest-name" class="form-control form-control-custom guest-input" placeholder="John Doe">
                 </div>
                 <div class="col-md-6">
+                  <label class="text-small fw-semibold mb-1">ID Number (Optional)</label>
+                  <input type="text" id="guest-id-number" class="form-control form-control-custom guest-input">
+                </div>
+                <div class="col-md-6 d-none">
                   <label class="text-small fw-semibold mb-1">Date of Birth *</label>
                   <input type="date" id="guest-dob" class="form-control form-control-custom guest-input">
                 </div>
@@ -180,17 +159,17 @@
             </div>
 
             <div class="bg-light p-3 rounded mb-4 border">
-              <div class="d-flex justify-content-between mb-1"><span class="text-muted">Room cost</span><span class="text-mono">850,000</span></div>
+              <div class="d-flex justify-content-between mb-1"><span class="text-muted">Room cost</span><span class="text-mono" id="summary-room-cost">0</span></div>
               <div class="d-flex justify-content-between mb-1"><span class="text-muted">Services</span><span id="summary-service-cost" class="text-mono">0</span></div>
               <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
                 <strong class="text-heading text-primary">TOTAL</strong>
-                <strong id="summary-total" class="text-display text-primary">850,000 VND</strong>
+                <strong id="summary-total" class="text-display text-primary">0 VND</strong>
               </div>
             </div>
 
             <div class="d-flex gap-3 mt-4">
               <button class="btn btn-light flex-grow-1" style="height: 40px;">Cancel</button>
-              <button class="btn-primary-custom flex-grow-1" style="height: 40px;">Book Now →</button>
+              <button class="btn-primary-custom flex-grow-1" style="height: 40px;" id="btn-confirm-booking" disabled>Book Now →</button>
             </div>
           </div>
         </div>
@@ -209,23 +188,15 @@
           <div class="mb-4">
             <div class="input-group">
               <span class="input-group-text bg-white border-end-0"><i data-feather="search" style="width: 16px;"></i></span>
-              <input type="text" class="form-control form-control-custom border-start-0" placeholder="Search services (e.g. Airport, Spa)...">
+              <input type="text" id="service-search-input" class="form-control form-control-custom border-start-0" placeholder="Search services (e.g. Airport, Spa)...">
             </div>
           </div>
           
           <h6 class="text-subheading mb-2">Results</h6>
           <div class="table-responsive" style="max-height: 200px;">
-            <table class="table table-custom table-sm align-middle">
+            <table class="table table-custom table-sm align-middle" id="services-result-table">
               <thead><tr><th>Service</th><th>Category</th><th>Price</th><th></th></tr></thead>
               <tbody>
-                <tr>
-                  <td>Airport Transfer</td><td>Transport</td><td class="text-mono">350,000</td>
-                  <td><button class="btn btn-sm btn-primary py-0" onclick="selectService('Airport Transfer', 350000)">Add</button></td>
-                </tr>
-                <tr>
-                  <td>Spa Treatment</td><td>Wellness</td><td class="text-mono">500,000</td>
-                  <td><button class="btn btn-sm btn-primary py-0" onclick="selectService('Spa Treatment', 500000)">Add</button></td>
-                </tr>
               </tbody>
             </table>
           </div>
@@ -250,86 +221,324 @@
   <script>
     feather.replace();
 
-    let selectedServiceName = "";
-    let selectedServicePrice = 0;
+    // ─── Booking State ────────────────────────────────────────────────────────
+    let selectedRooms = [];
+    let selectedServices = [];
+    let roomTotalCost = 0;
     let serviceTotalCost = 0;
+    let currentGuestId = null;
 
-    document.addEventListener("DOMContentLoaded", function() {
-      // Logic ẩn hiện panel
-      const btnSearch = document.getElementById('btn-search');
-      const roomResultsArea = document.getElementById('room-results-area');
-      const btnProceedBooking = document.getElementById('btn-proceed-booking');
-      const leftPanel = document.getElementById('left-panel');
-      const rightPanel = document.getElementById('right-panel');
+    function formatMoney(amount) {
+      return new Intl.NumberFormat('vi-VN').format(amount);
+    }
 
-      btnSearch.addEventListener('click', () => roomResultsArea.classList.remove('d-none'));
-      
-      btnProceedBooking.addEventListener('click', () => {
-        leftPanel.classList.remove('col-lg-8', 'mx-auto');
-        leftPanel.classList.add('col-lg-6');
-        rightPanel.classList.remove('d-none');
-        document.getElementById('booking-action-wrapper').classList.add('d-none');
-      });
+    function updateTotal() {
+      document.getElementById('summary-room-cost').innerText = formatMoney(roomTotalCost);
+      document.getElementById('summary-service-cost').innerText = formatMoney(serviceTotalCost);
+      document.getElementById('summary-total').innerText = formatMoney(roomTotalCost + serviceTotalCost) + " VND";
+    }
 
-      // Logic Validation Thông tin khách hàng (§9)
-      const guestInputs = document.querySelectorAll('.guest-input');
-      const btnConfirm = document.getElementById('btn-confirm-booking');
+    // ─── Step 1: Search Rooms ─────────────────────────────────────────────────
+    document.getElementById('btn-search').addEventListener('click', async () => {
+      const checkin = document.getElementById('checkin').value;
+      const checkout = document.getElementById('checkout').value;
+      if (!checkin || !checkout) { alert('Vui lòng chọn ngày Check-in và Check-out'); return; }
 
-      function validateForm() {
-        const name = document.getElementById('guest-name').value.trim();
-        const phone = document.getElementById('guest-phone').value.trim();
-        const dob = document.getElementById('guest-dob').value;
-        
-        let isValid = name.length > 0 && phone.match(/^\d{9,11}$/);
-        
-        // Kiểm tra đủ 18 tuổi (§9)
-        if (dob) {
-          const birthDate = new Date(dob);
-          const age = new Date().getFullYear() - birthDate.getFullYear();
-          if (age < 18) isValid = false;
-        } else {
-          isValid = false;
-        }
+      document.getElementById('room-results-area').classList.remove('d-none');
+      const tbody = document.querySelector('#available-rooms-table tbody');
+      tbody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
 
-        btnConfirm.disabled = !isValid;
+      // Early checkin warning logic
+      const checkinHour = new Date(checkin).getHours();
+      const warningAlert = document.getElementById('early-checkin-warning');
+      if (checkinHour < 14) {
+        warningAlert.classList.remove('d-none');
+      } else {
+        warningAlert.classList.add('d-none');
       }
 
-      guestInputs.forEach(input => input.addEventListener('input', validateForm));
+      try {
+        const checkinDate = checkin.split('T')[0];
+        const checkoutDate = checkout.split('T')[0];
+        const res = await fetch(`http://localhost:8000/api/rooms/available?checkin=${checkinDate}&checkout=${checkoutDate}`);
+        if (!res.ok) throw new Error("Search failed");
+        const data = await res.json();
+        
+        tbody.innerHTML = '';
+        if (data.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4">Không còn phòng trống</td></tr>';
+          return;
+        }
+
+        data.forEach(item => {
+          if (item.min_available <= 0) return;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="fw-medium">${item.type_name} ${item.has_missing_dates ? '<span class="text-danger">*</span>' : ''}</td>
+            <td>${item.min_available}</td>
+            <td class="text-mono">${formatMoney(item.base_price)} VND</td>
+            <td>
+              <div class="form-check form-switch mb-2">
+                <input class="form-check-input" type="checkbox" id="breakfast-${item.room_type_id}">
+                <label class="form-check-label text-small" for="breakfast-${item.room_type_id}">+ Breakfast</label>
+              </div>
+              <button class="btn btn-sm btn-outline-primary" onclick="addRoom(${item.room_type_id}, '${item.type_name}', ${item.base_price})">+ Add</button>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi khi tìm phòng trống");
+      }
     });
 
-    // Logic Service Modal
-    function updateQty(val) {
+    window.addRoom = function(typeId, typeName, price) {
+      const isBreakfast = document.getElementById(`breakfast-${typeId}`).checked;
+      
+      const existing = selectedRooms.find(r => r.typeId === typeId && r.isBreakfast === isBreakfast);
+      if (existing) {
+        existing.qty++;
+        existing.subtotal += price;
+      } else {
+        selectedRooms.push({ typeId, typeName, price, qty: 1, subtotal: price, isBreakfast });
+      }
+      
+      renderSelectedRooms();
+    };
+
+    window.removeRoom = function(index) {
+      selectedRooms.splice(index, 1);
+      renderSelectedRooms();
+    };
+
+    function renderSelectedRooms() {
+      const tbody = document.querySelector('#selected-rooms-table tbody');
+      tbody.innerHTML = '';
+      roomTotalCost = 0;
+      let totalQty = 0;
+
+      selectedRooms.forEach((r, idx) => {
+        roomTotalCost += r.subtotal;
+        totalQty += r.qty;
+        tbody.innerHTML += `
+          <tr>
+            <td>${r.typeName} ${r.isBreakfast ? '<span class="badge bg-light text-dark border">B</span>' : ''}</td>
+            <td>${r.qty}</td>
+            <td class="text-mono">${formatMoney(r.subtotal)}</td>
+            <td><i data-feather="x" class="text-danger cursor-pointer" style="width: 16px;" onclick="removeRoom(${idx})"></i></td>
+          </tr>
+        `;
+      });
+      document.getElementById('selected-count').innerText = totalQty;
+      feather.replace();
+      updateTotal();
+    }
+
+    document.getElementById('btn-proceed-booking').addEventListener('click', () => {
+      if (selectedRooms.length === 0) { alert('Vui lòng chọn ít nhất 1 phòng'); return; }
+      document.getElementById('left-panel').classList.remove('col-lg-8', 'mx-auto');
+      document.getElementById('left-panel').classList.add('col-lg-6');
+      document.getElementById('right-panel').classList.remove('d-none');
+      document.getElementById('booking-action-wrapper').classList.add('d-none');
+    });
+
+    // ─── Step 1b: Guest Lookup ────────────────────────────────────────────────
+    document.getElementById('btn-guest-lookup').addEventListener('click', async () => {
+      const phone = document.getElementById('guest-phone').value.trim();
+      if (!phone) return;
+      try {
+        const res = await fetch(`http://localhost:8000/api/customers/lookup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone_number: phone })
+        });
+        if (res.ok) {
+          const guest = await res.json();
+          document.getElementById('guest-name').value = guest.full_name || '';
+          document.getElementById('guest-id-number').value = guest.identity_card || '';
+          currentGuestId = guest.customer_id;
+          validateForm();
+        } else {
+          alert("Khách hàng chưa có trong hệ thống (Backend chưa hỗ trợ tạo mới)");
+          currentGuestId = null;
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    // ─── Step 2: Book Now Flow ────────────────────────────────────────────────
+    const btnConfirm = document.getElementById('btn-confirm-booking');
+    function validateForm() {
+      const name = document.getElementById('guest-name').value.trim();
+      const phone = document.getElementById('guest-phone').value.trim();
+      let isValid = name.length > 0 && phone.match(/^\d{9,11}$/) && currentGuestId !== null;
+      btnConfirm.disabled = !isValid;
+    }
+    document.querySelectorAll('.guest-input').forEach(input => input.addEventListener('input', validateForm));
+
+    btnConfirm.addEventListener('click', async () => {
+      if (!currentGuestId) return;
+      btnConfirm.disabled = true;
+      btnConfirm.innerText = "Processing...";
+
+      try {
+        const checkin = document.getElementById('checkin').value.replace('T', ' ') + ':00';
+        const checkout = document.getElementById('checkout').value.replace('T', ' ') + ':00';
+        const idempotencyKey = crypto.randomUUID();
+
+        // 1. Begin
+        const resBegin = await fetch(`http://localhost:8000/api/bookings/begin`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            hotel_id: 1,
+            customer_id: currentGuestId,
+            check_in_date: checkin,
+            check_out_date: checkout,
+            idempotency_key: idempotencyKey
+          })
+        });
+        if (!resBegin.ok) throw new Error("Begin booking failed");
+        const beginData = await resBegin.json();
+        const bookingId = beginData.booking_id;
+
+        // 2. Add Rooms
+        for (const r of selectedRooms) {
+          await fetch(`http://localhost:8000/api/bookings/${bookingId}/rooms`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              room_type_id: r.typeId,
+              quantity: r.qty,
+              is_breakfast_included: r.isBreakfast
+            })
+          });
+        }
+
+        // 2.5 Add Services
+        for (const s of selectedServicesList) {
+          await fetch(`http://localhost:8000/api/bookings/${bookingId}/services`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              service_id: s.id,
+              quantity: s.qty,
+              staff_id: session.staff_id || 1
+            })
+          });
+        }
+
+        // 3. Finalize
+        const resFin = await fetch(`http://localhost:8000/api/bookings/${bookingId}/finalize`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({})
+        });
+        if (!resFin.ok) throw new Error("Finalize booking failed");
+
+        // Redirect
+        window.location.href = `booking-detail.html?id=${bookingId}`;
+
+      } catch (err) {
+        console.error(err);
+        alert("Có lỗi xảy ra khi tạo booking.");
+        btnConfirm.disabled = false;
+        btnConfirm.innerText = "Book Now →";
+      }
+    });
+
+    // ─── Service Modal Logic ──────────────────────────────────────────────────
+    let searchTimeout;
+    document.getElementById('service-search-input').addEventListener('input', (e) => {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(async () => {
+        const q = e.target.value.trim();
+        if (!q) return;
+        try {
+          const res = await fetch(`http://localhost:8000/api/services/search?q=${encodeURIComponent(q)}&hotel_id=1`);
+          if (res.ok) {
+            const data = await res.json();
+            const tbody = document.querySelector('#services-result-table tbody');
+            tbody.innerHTML = '';
+            data.forEach(srv => {
+              tbody.innerHTML += `
+                <tr>
+                  <td>${srv.service_name}</td><td>${srv.category}</td><td class="text-mono">${formatMoney(srv.price)}</td>
+                  <td><button class="btn btn-sm btn-primary py-0" onclick="selectService(${srv.service_id}, '${srv.service_name}', ${srv.price})">Select</button></td>
+                </tr>
+              `;
+            });
+          }
+        } catch (err) { console.error(err); }
+      }, 300);
+    });
+
+    let currentServiceSelection = null;
+    window.selectService = function(id, name, price) {
+      currentServiceSelection = { id, name, price };
+      alert(`Selected: ${name}`);
+    };
+
+    window.updateQty = function(val) {
       const input = document.getElementById('modal-qty');
       let current = parseInt(input.value);
       if (current + val >= 1) input.value = current + val;
-    }
+    };
 
-    function selectService(name, price) {
-      selectedServiceName = name;
-      selectedServicePrice = price;
-    }
+    let selectedServicesList = [];
 
-    function confirmAddService() {
-      if (!selectedServiceName) return;
+    window.confirmAddService = function() {
+      if (!currentServiceSelection) return;
       const qty = parseInt(document.getElementById('modal-qty').value);
-      const subtotal = selectedServicePrice * qty;
       
+      const existing = selectedServicesList.find(s => s.id === currentServiceSelection.id);
+      if (existing) {
+        existing.qty += qty;
+      } else {
+        selectedServicesList.push({
+          id: currentServiceSelection.id,
+          name: currentServiceSelection.name,
+          price: currentServiceSelection.price,
+          qty: qty
+        });
+      }
+      
+      currentServiceSelection = null;
+      document.getElementById('service-search-input').value = '';
+      document.querySelector('#services-result-table tbody').innerHTML = '';
+      
+      // Close modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('serviceModal'));
+      if (modal) modal.hide();
+
+      renderSelectedServices();
+    };
+
+    window.removeService = function(index) {
+      selectedServicesList.splice(index, 1);
+      renderSelectedServices();
+    };
+
+    function renderSelectedServices() {
       const tbody = document.querySelector('#selected-services-table tbody');
-      const row = `<tr>
-        <td>${selectedServiceName}</td>
-        <td class="text-mono">${selectedServicePrice.toLocaleString()}</td>
-        <td>${qty}</td>
-        <td class="text-mono">${subtotal.toLocaleString()}</td>
-        <td><i data-feather="x" class="text-danger cursor-pointer" style="width: 14px;"></i></td>
-      </tr>`;
-      
-      tbody.insertAdjacentHTML('beforeend', row);
+      tbody.innerHTML = '';
+      serviceTotalCost = 0;
+
+      selectedServicesList.forEach((s, idx) => {
+        const subtotal = s.price * s.qty;
+        serviceTotalCost += subtotal;
+        tbody.innerHTML += `<tr>
+          <td>${s.name}</td>
+          <td class="text-mono">${formatMoney(s.price)}</td>
+          <td>${s.qty}</td>
+          <td class="text-mono">${formatMoney(subtotal)}</td>
+          <td><i data-feather="x" class="text-danger cursor-pointer" style="width: 14px;" onclick="removeService(${idx})"></i></td>
+        </tr>`;
+      });
       feather.replace();
-      
-      // Update Summary
-      serviceTotalCost += subtotal;
-      document.getElementById('summary-service-cost').innerText = serviceTotalCost.toLocaleString();
-      document.getElementById('summary-total').innerText = (850000 + serviceTotalCost).toLocaleString() + " VND";
+      updateTotal();
     }
 
     // ─── Auth Guard

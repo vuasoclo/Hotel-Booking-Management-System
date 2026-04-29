@@ -99,15 +99,11 @@
       <p class="text-small text-muted mb-2 fw-semibold">Tài khoản demo — click để điền:</p>
       <div class="demo-accounts">
         <div class="demo-account-row" onclick="fillCredentials('admin','admin123')">
-          <span class="text-small fw-medium">admin</span>
+          <span class="text-small fw-medium">admin — Nguyễn Admin</span>
           <span class="role-badge role-admin">Admin</span>
         </div>
-        <div class="demo-account-row" onclick="fillCredentials('staff1','staff123')">
-          <span class="text-small fw-medium">staff1 — Nguyễn Văn Hoàng</span>
-          <span class="role-badge role-staff">Staff</span>
-        </div>
-        <div class="demo-account-row" onclick="fillCredentials('staff2','staff123')">
-          <span class="text-small fw-medium">staff2 — Trần Thị Mai</span>
+        <div class="demo-account-row" onclick="fillCredentials('staff','staff123')">
+          <span class="text-small fw-medium">staff — Trần Lễ Tân</span>
           <span class="role-badge role-staff">Staff</span>
         </div>
       </div>
@@ -118,35 +114,45 @@
   <script>
     feather.replace();
 
-    // ─── Mock user store (thay bằng POST /api/auth/login về sau) ───────────────
-    const MOCK_USERS = {
-      'admin':  { password: 'admin123', name: 'Admin',            role: 'admin',  staffId: 1 },
-      'staff1': { password: 'staff123', name: 'Nguyễn Văn Hoàng', role: 'staff',  staffId: 2 },
-      'staff2': { password: 'staff123', name: 'Trần Thị Mai',      role: 'staff',  staffId: 3 },
-    };
-
-    function handleLogin(e) {
+    async function handleLogin(e) {
       e.preventDefault();
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value;
       const errEl    = document.getElementById('login-error');
 
-      const user = MOCK_USERS[username];
-      if (!user || user.password !== password) {
+      try {
+        const response = await fetch('http://localhost:8000/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ username, password })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          errEl.innerText = errorData.detail || 'Sai tài khoản hoặc mật khẩu.';
+          errEl.classList.remove('d-none');
+          return;
+        }
+
+        const data = await response.json();
+        errEl.classList.add('d-none');
+
+        // Lưu session vào sessionStorage (backend sẽ dùng JWT/cookie thực)
+        sessionStorage.setItem('hbms_user', JSON.stringify({
+          username: username,
+          name:    data.name,
+          role:    data.role,
+          staffId: data.staff_id,
+        }));
+
+        window.location.href = 'calendar.html';
+      } catch (error) {
+        console.error('Error during login:', error);
+        errEl.innerText = 'Lỗi kết nối đến server.';
         errEl.classList.remove('d-none');
-        return;
       }
-      errEl.classList.add('d-none');
-
-      // Lưu session vào sessionStorage (backend sẽ dùng JWT/cookie thực)
-      sessionStorage.setItem('hbms_user', JSON.stringify({
-        username,
-        name:    user.name,
-        role:    user.role,
-        staffId: user.staffId,
-      }));
-
-      window.location.href = 'calendar.html';
     }
 
     function fillCredentials(user, pass) {

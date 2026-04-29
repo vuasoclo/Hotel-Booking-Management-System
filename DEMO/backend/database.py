@@ -6,10 +6,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 DB_CONFIG = {
-    "dbname":   os.getenv("DB_NAME",     "hbms_db"),
+    "dbname":   os.getenv("DB_NAME",     "hbms"),
     "user":     os.getenv("DB_USER",     "postgres"),
-    "password": os.getenv("DB_PASSWORD", ""),
-    "host":     os.getenv("DB_HOST",     "localhost"),
+    "password": os.getenv("DB_PASSWORD", "postgres"),
+    "host":     os.getenv("DB_HOST",     "db"),
     "port":     os.getenv("DB_PORT",     "5432"),
 }
 

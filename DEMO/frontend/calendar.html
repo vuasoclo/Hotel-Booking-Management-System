@@ -59,11 +59,11 @@
             <button class="btn btn-outline-secondary btn-sm"><i data-feather="chevron-left"></i></button>
             <button class="btn btn-outline-secondary btn-sm"><i data-feather="chevron-right"></i></button>
           </div>
-          <span class="fw-bold px-2">25 Apr 2026 — 01 May 2026</span>
-          <button class="btn btn-light btn-sm border">Today</button>
+          <span class="fw-bold px-2" id="date-range-text">...</span>
+          <button class="btn btn-light btn-sm border" onclick="shiftDate(0)">Today</button>
         </div>
         <div class="d-flex gap-2">
-          <button class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
+          <button id="btn-defragment" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
             <i data-feather="zap" style="width:14px"></i> Defragment
           </button>
           <a href="new-reservation.html" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
@@ -76,14 +76,8 @@
 
         <div class="d-flex border-bottom sticky-top bg-white" style="z-index:20">
           <div class="room-label-col room-type-header d-flex align-items-center px-3" style="height:48px">Rooms</div>
-          <div class="d-flex flex-grow-1">
-            <div class="cal-header-cell flex-fill"><span class="text-small">Fri</span><strong>25</strong></div>
-            <div class="cal-header-cell flex-fill"><span class="text-small">Sat</span><strong>26</strong></div>
-            <div class="cal-header-cell flex-fill"><span class="text-small">Sun</span><strong>27</strong></div>
-            <div class="cal-header-cell flex-fill"><span class="text-small">Mon</span><strong>28</strong></div>
-            <div class="cal-header-cell flex-fill"><span class="text-small">Tue</span><strong>29</strong></div>
-            <div class="cal-header-cell flex-fill"><span class="text-small">Wed</span><strong>30</strong></div>
-            <div class="cal-header-cell flex-fill"><span class="text-small">Thu</span><strong>01</strong></div>
+          <div class="d-flex flex-grow-1" id="calendar-header-dates">
+            <!-- Dates will be generated here -->
           </div>
         </div>
 
@@ -112,29 +106,105 @@
       window.location.href = 'index.html';
     });
 
-    // ─── Mock Data ─────────────────────────────────────────────────────────────
     const TOTAL_DAYS = 7;
-    const roomTypes = [
-      { id: 't1', name: 'Deluxe King' },
-      { id: 't2', name: 'Suite' },
-    ];
-    const rooms = [
-      { id: 'r101', typeId: 't1', name: 'Room 101', status: 'Available'   },
-      { id: 'r102', typeId: 't1', name: 'Room 102', status: 'Available'   },
-      { id: 'r103', typeId: 't1', name: 'Room 103', status: 'Dirty'       },
-      { id: 'r201', typeId: 't2', name: 'Room 201', status: 'Available'   },
-      { id: 'r202', typeId: 't2', name: 'Room 202', status: 'Maintenance' },
-    ];
-    // BK-00412: John Doe chiếm r101 + r102 cùng 1 booking_id (multi-room booking)
-    let bookings = [
-      { id: 'BK-00412', guest: 'John Doe',    inits: 'JD', roomId: 'r101', status: 'Checked-in', start: 0, length: 3 },
-      { id: 'BK-00412', guest: 'John Doe',    inits: 'JD', roomId: 'r102', status: 'Checked-in', start: 0, length: 3 },
-      { id: 'BK-00415', guest: 'Alice Smith', inits: 'AS', roomId: 'r103', status: 'Active',      start: 1, length: 4 },
-      { id: 'BK-00418', guest: 'Bob Jones',   inits: 'BJ', roomId: 'r201', status: 'Active',      start: 3, length: 3 },
-    ];
+    let startDate = new Date();
+    startDate.setHours(0, 0, 0, 0);
 
-    // ─── Render ────────────────────────────────────────────────────────────────
+    let roomTypes = [];
+    let rooms = [];
+    let bookings = [];
+
     const gridEl = document.getElementById('calendar-grid');
+
+    async function fetchCalendar() {
+      const startStr = startDate.toISOString().split('T')[0];
+      let endDate = new Date(startDate);
+      endDate.setDate(startDate.getDate() + TOTAL_DAYS - 1);
+      const endStr = endDate.toISOString().split('T')[0];
+
+      updateHeaderDates(startDate, endDate);
+
+      try {
+        const res = await fetch(`http://localhost:8000/api/calendar?start_date=${startStr}&end_date=${endStr}`);
+        if (!res.ok) throw new Error("API Failed");
+        const data = await res.json();
+        
+        processCalendarData(data);
+        renderCalendar();
+      } catch (err) {
+        console.error("Lỗi khi load calendar", err);
+      }
+    }
+
+    function updateHeaderDates(start, end) {
+      document.getElementById('date-range-text').textContent = 
+        `${start.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})} — ${end.toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'})}`;
+
+      const header = document.getElementById('calendar-header-dates');
+      header.innerHTML = '';
+      for (let i = 0; i < TOTAL_DAYS; i++) {
+        let d = new Date(start);
+        d.setDate(start.getDate() + i);
+        let dayName = d.toLocaleDateString('en-GB', {weekday:'short'});
+        let dayNum = d.getDate().toString().padStart(2, '0');
+        header.innerHTML += `<div class="cal-header-cell flex-fill"><span class="text-small">${dayName}</span><strong>${dayNum}</strong></div>`;
+      }
+    }
+
+    function processCalendarData(data) {
+      roomTypes = [];
+      rooms = [];
+      bookings = [];
+      
+      const typeMap = new Map();
+      const roomMap = new Map();
+
+      data.forEach(item => {
+        if (!typeMap.has(item.room_type_id)) {
+          typeMap.set(item.room_type_id, { id: item.room_type_id, name: item.type_name });
+          roomTypes.push({ id: item.room_type_id, name: item.type_name });
+        }
+        if (!roomMap.has(item.room_id)) {
+          roomMap.set(item.room_id, {
+            id: item.room_id, typeId: item.room_type_id, name: item.room_number, status: item.room_status
+          });
+          rooms.push({
+            id: item.room_id, typeId: item.room_type_id, name: item.room_number, status: item.room_status
+          });
+        }
+        
+        if (item.booking_id) {
+          const checkIn = new Date(item.check_in);
+          checkIn.setHours(0,0,0,0);
+          const checkOut = new Date(item.check_out);
+          checkOut.setHours(0,0,0,0);
+
+          let startOffset = (checkIn - startDate) / (1000 * 60 * 60 * 24);
+          let length = (checkOut - checkIn) / (1000 * 60 * 60 * 24);
+          
+          if (startOffset < 0) {
+            length += startOffset;
+            startOffset = 0;
+          }
+          if (startOffset + length > TOTAL_DAYS) {
+            length = TOTAL_DAYS - startOffset;
+          }
+
+          if (length > 0 && startOffset < TOTAL_DAYS) {
+            let inits = item.customer_name ? item.customer_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'G';
+            bookings.push({
+              id: item.booking_id,
+              guest: item.customer_name || 'Khách',
+              inits: inits,
+              roomId: item.room_id,
+              status: item.booking_status,
+              start: startOffset,
+              length: length
+            });
+          }
+        }
+      });
+    }
 
     function renderCalendar() {
       gridEl.innerHTML = '';
@@ -181,12 +251,10 @@
           <div class="block-avatar" style="${booking.status === 'Active' ? 'background:#3B82F6' : ''}">${booking.inits}</div>
           <strong>${booking.guest} — ${booking.id}</strong>`;
 
-        // Click → booking detail (cùng booking_id dù ở phòng nào)
         block.addEventListener('click', () => {
           window.location.href = `booking-detail.html?id=${booking.id}`;
         });
 
-        // Hover: sáng tất cả blocks có cùng booking_id
         block.addEventListener('mouseenter', () => {
           document.querySelectorAll(`.booking-block[data-booking-id="${booking.id}"]`)
             .forEach(b => b.classList.add('booking-hover'));
@@ -203,7 +271,6 @@
       initDragAndDrop();
     }
 
-    // ─── Drag & Drop ───────────────────────────────────────────────────────────
     function initDragAndDrop() {
       const blocks = document.querySelectorAll('.booking-block');
       let draggedBlock = null, ghost = null, offsetY = 0, originalRow = null;
@@ -233,9 +300,9 @@
         if (hoveredRow) {
           let valid = hoveredRow.dataset.typeId === originalRow.dataset.typeId;
           if (valid) {
-            const bS = parseInt(draggedBlock.dataset.start), bE = bS + parseInt(draggedBlock.dataset.length);
+            const bS = parseFloat(draggedBlock.dataset.start), bE = bS + parseFloat(draggedBlock.dataset.length);
             hoveredRow.querySelectorAll('.booking-block:not(.dragging-original)').forEach(eb => {
-              const eS = parseInt(eb.dataset.start), eE = eS + parseInt(eb.dataset.length);
+              const eS = parseFloat(eb.dataset.start), eE = eS + parseFloat(eb.dataset.length);
               if (bS < eE && bE > eS) valid = false;
             });
           }
@@ -244,7 +311,7 @@
         }
       });
 
-      document.addEventListener('mouseup', (e) => {
+      document.addEventListener('mouseup', async (e) => {
         if (!draggedBlock || !ghost) return;
         const targetEl   = document.elementFromPoint(e.clientX, e.clientY);
         const hoveredRow = targetEl ? targetEl.closest('.room-row[data-room-id]') : null;
@@ -252,9 +319,21 @@
           const newRoomId = hoveredRow.dataset.roomId;
           const origRoom  = draggedBlock.dataset.roomId;
           const bid       = draggedBlock.dataset.bookingId;
-          const bData     = bookings.find(b => b.id === bid && b.roomId === origRoom);
-          if (bData) bData.roomId = newRoomId;
-          renderCalendar();
+          
+          if (newRoomId !== origRoom) {
+            try {
+              const res = await fetch(`http://localhost:8000/api/calendar/pre-assign`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ booking_id: parseInt(bid), room_id: parseInt(newRoomId), staff_id: session.staffId })
+              });
+              if (!res.ok) throw new Error("Pre-assign failed");
+              fetchCalendar();
+            } catch(e) {
+              console.error(e);
+              alert("Lỗi khi chuyển phòng!");
+            }
+          }
         } else {
           draggedBlock.classList.remove('dragging-original');
         }
@@ -265,7 +344,35 @@
       });
     }
 
-    renderCalendar();
+    document.getElementById('btn-defragment').addEventListener('click', async () => {
+      try {
+        const res = await fetch(`http://localhost:8000/api/calendar/defragment?hotel_id=1&staff_id=${session.staffId}`, { method: 'POST' });
+        if (!res.ok) throw new Error("Defragment failed");
+        fetchCalendar();
+      } catch(e) {
+        console.error(e);
+        alert("Lỗi khi chạy defragment!");
+      }
+    });
+
+    function shiftDate(days) {
+      if (days === 0) {
+        startDate = new Date();
+      } else {
+        startDate.setDate(startDate.getDate() + days);
+      }
+      startDate.setHours(0,0,0,0);
+      fetchCalendar();
+    }
+    
+    // Bind chevron buttons
+    const btnGroup = document.querySelectorAll('.btn-group button');
+    if (btnGroup.length >= 2) {
+      btnGroup[0].addEventListener('click', () => shiftDate(-1));
+      btnGroup[1].addEventListener('click', () => shiftDate(1));
+    }
+
+    fetchCalendar();
   </script>
 </body>
 </html>

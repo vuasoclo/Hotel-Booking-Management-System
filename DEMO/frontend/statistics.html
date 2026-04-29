@@ -63,29 +63,29 @@
       <div class="row g-3 mb-4">
         <div class="col-md-3">
           <div class="stat-card">
-            <div class="stat-label">Avg Occupancy</div>
-            <div class="stat-value">78.4%</div>
-            <div class="stat-trend text-success">↑ +5.2% MoM</div>
+            <div class="stat-label">Avg Occupancy (7 days)</div>
+            <div class="stat-value" id="avg-occupancy">0%</div>
+            <div class="stat-trend text-muted"></div>
           </div>
         </div>
         <div class="col-md-3">
           <div class="stat-card">
             <div class="stat-label">Total Revenue</div>
-            <div class="stat-value">128,400,000</div>
-            <div class="stat-trend text-success">↑ +12% MoM</div>
+            <div class="stat-value" id="total-revenue">0</div>
+            <div class="stat-trend text-muted"></div>
           </div>
         </div>
         <div class="col-md-3">
           <div class="stat-card">
             <div class="stat-label">Collected</div>
-            <div class="stat-value">110,200,000</div>
+            <div class="stat-value" id="total-collected">0</div>
             <div class="stat-trend text-muted">Bao gồm VAT</div>
           </div>
         </div>
         <div class="col-md-3">
           <div class="stat-card">
             <div class="stat-label">Outstanding</div>
-            <div class="stat-value text-danger">18,200,000</div>
+            <div class="stat-value text-danger" id="total-outstanding">0</div>
             <div class="stat-trend text-danger">Số dư chưa thu</div>
           </div>
         </div>
@@ -96,40 +96,11 @@
         <div class="table-responsive">
           <table class="table table-borderless align-middle">
             <thead>
-              <tr class="text-small text-muted">
+              <tr class="text-small text-muted" id="heatmap-head">
                 <th style="width: 120px;">Phòng</th>
-                <th>25</th><th>26</th><th>27</th><th>28</th><th>29</th><th>30</th><th>01</th><th>02</th><th>03</th><th>04</th><th>05</th>
               </tr>
             </thead>
-            <tbody>
-              <tr>
-                <td class="text-subheading">Deluxe King</td>
-                <td><div class="heatmap-cell hp-100"></div></td>
-                <td><div class="heatmap-cell hp-50"></div></td>
-                <td><div class="heatmap-cell hp-100"></div></td>
-                <td><div class="heatmap-cell hp-75"></div></td>
-                <td><div class="heatmap-cell hp-100"></div></td>
-                <td><div class="heatmap-cell hp-50"></div></td>
-                <td><div class="heatmap-cell hp-0"></div></td>
-                <td><div class="heatmap-cell hp-25"></div></td>
-                <td><div class="heatmap-cell hp-50"></div></td>
-                <td><div class="heatmap-cell hp-75"></div></td>
-                <td><div class="heatmap-cell hp-100"></div></td>
-              </tr>
-              <tr>
-                <td class="text-subheading">Suite</td>
-                <td><div class="heatmap-cell hp-50"></div></td>
-                <td><div class="heatmap-cell hp-100"></div></td>
-                <td><div class="heatmap-cell hp-0"></div></td>
-                <td><div class="heatmap-cell hp-0"></div></td>
-                <td><div class="heatmap-cell hp-25"></div></td>
-                <td><div class="heatmap-cell hp-50"></div></td>
-                <td><div class="heatmap-cell hp-100"></div></td>
-                <td><div class="heatmap-cell hp-75"></div></td>
-                <td><div class="heatmap-cell hp-100"></div></td>
-                <td><div class="heatmap-cell hp-50"></div></td>
-                <td><div class="heatmap-cell hp-25"></div></td>
-              </tr>
+            <tbody id="heatmap-body">
             </tbody>
           </table>
         </div>
@@ -158,31 +129,7 @@
               </div>
             </div>
             
-            <div class="d-flex align-items-end justify-content-between px-4" style="height: 200px;">
-              <div class="d-flex flex-column gap-1" style="width: 40px;">
-                <div style="height: 40px; background: var(--color-success-600); width: 100%;"></div>
-                <div style="height: 20px; background: var(--color-warning-600); width: 100%;"></div>
-                <div style="height: 100px; background: var(--color-primary-400); width: 100%;"></div>
-                <span class="text-small text-center mt-2">Jan</span>
-              </div>
-              <div class="d-flex flex-column gap-1" style="width: 40px;">
-                <div style="height: 30px; background: var(--color-success-600); width: 100%;"></div>
-                <div style="height: 15px; background: var(--color-warning-600); width: 100%;"></div>
-                <div style="height: 120px; background: var(--color-primary-400); width: 100%;"></div>
-                <span class="text-small text-center mt-2">Feb</span>
-              </div>
-              <div class="d-flex flex-column gap-1" style="width: 40px;">
-                <div style="height: 50px; background: var(--color-success-600); width: 100%;"></div>
-                <div style="height: 25px; background: var(--color-warning-600); width: 100%;"></div>
-                <div style="height: 90px; background: var(--color-primary-400); width: 100%;"></div>
-                <span class="text-small text-center mt-2">Mar</span>
-              </div>
-              <div class="d-flex flex-column gap-1" style="width: 40px;">
-                <div style="height: 60px; background: var(--color-success-600); width: 100%;"></div>
-                <div style="height: 30px; background: var(--color-warning-600); width: 100%;"></div>
-                <div style="height: 110px; background: var(--color-primary-400); width: 100%;"></div>
-                <span class="text-small text-center mt-2">Apr</span>
-              </div>
+            <div class="d-flex align-items-end justify-content-between px-4" style="height: 200px;" id="revenue-chart">
             </div>
           </div>
         </div>
@@ -199,22 +146,22 @@
               </svg>
               <div class="position-absolute top-50 left-50 translate-middle text-center">
                 <div class="text-small text-muted">Total</div>
-                <div class="fw-bold">128.4M</div>
+                <div class="fw-bold" id="donut-total">0M</div>
               </div>
             </div>
 
             <div class="w-100 mt-4">
               <div class="d-flex justify-content-between text-small mb-2">
                 <span><i data-feather="circle" class="me-1" style="width:10px; fill:var(--color-primary-400); stroke:none"></i> Rooms</span>
-                <span class="fw-bold">74%</span>
+                <span class="fw-bold" id="rooms-pct">0%</span>
               </div>
               <div class="d-flex justify-content-between text-small mb-2">
                 <span><i data-feather="circle" class="me-1" style="width:10px; fill:var(--color-success-600); stroke:none"></i> Services</span>
-                <span class="fw-bold">17%</span>
+                <span class="fw-bold" id="services-pct">0%</span>
               </div>
               <div class="d-flex justify-content-between text-small">
                 <span><i data-feather="circle" class="me-1" style="width:10px; fill:var(--color-warning-600); stroke:none"></i> Surcharges</span>
-                <span class="fw-bold">9%</span>
+                <span class="fw-bold" id="surcharges-pct">0%</span>
               </div>
             </div>
 
@@ -235,6 +182,126 @@
       if (s.role === 'admin') { const b = document.getElementById('topbar-role'); b.textContent='Admin'; b.className='badge bg-warning text-dark ms-1'; b.style.display='inline'; }
       document.getElementById('btn-logout').addEventListener('click', () => { sessionStorage.removeItem('hbms_user'); window.location.href='index.html'; });
     })();
+
+    function formatMoney(amount) {
+      return new Intl.NumberFormat('vi-VN').format(amount);
+    }
+
+    async function fetchStatistics() {
+      try {
+        const response = await fetch('http://localhost:8000/api/statistics');
+        if (!response.ok) throw new Error('API failed');
+        const data = await response.json();
+        
+        renderKPIs(data);
+        renderHeatmap(data.daily_occupancy);
+        renderRevenueChart(data.monthly_revenue);
+      } catch (error) {
+        console.error('Lỗi khi fetch statistics:', error);
+      }
+    }
+
+    function renderKPIs(data) {
+      let totalRev = 0;
+      let totalCollected = 0;
+      data.monthly_revenue.forEach(m => {
+        totalRev += m.total_revenue;
+        totalCollected += m.actual_collected;
+      });
+      let outstanding = totalRev - totalCollected;
+
+      let sumOcc = 0;
+      let countOcc = 0;
+      data.daily_occupancy.slice(0, 7).forEach(d => {
+        sumOcc += d.occupancy_rate;
+        countOcc++;
+      });
+      let avgOcc = countOcc ? (sumOcc / countOcc).toFixed(1) : 0;
+
+      document.getElementById('avg-occupancy').textContent = avgOcc + '%';
+      document.getElementById('total-revenue').textContent = formatMoney(totalRev);
+      document.getElementById('total-collected').textContent = formatMoney(totalCollected);
+      document.getElementById('total-outstanding').textContent = formatMoney(outstanding);
+    }
+
+    function renderHeatmap(daily_occupancy) {
+      const dates = [...new Set(daily_occupancy.map(d => d.date))].sort();
+      const latestDates = dates.slice(0, 30); // 30 latest dates
+      
+      const thead = document.getElementById('heatmap-head');
+      thead.innerHTML = '<th style="width: 120px;">Phòng</th>';
+      latestDates.forEach(d => {
+        const day = new Date(d).getDate().toString().padStart(2, '0');
+        thead.innerHTML += `<th>${day}</th>`;
+      });
+
+      const typesMap = {};
+      daily_occupancy.forEach(d => {
+        if (!typesMap[d.type_name]) typesMap[d.type_name] = {};
+        typesMap[d.type_name][d.date] = d.occupancy_rate;
+      });
+
+      const tbody = document.getElementById('heatmap-body');
+      tbody.innerHTML = '';
+      for (const [typeName, datesMap] of Object.entries(typesMap)) {
+        let rowHtml = `<tr><td class="text-subheading">${typeName}</td>`;
+        latestDates.forEach(d => {
+          let rate = datesMap[d] || 0;
+          let hpClass = 'hp-0';
+          if (rate > 0 && rate <= 25) hpClass = 'hp-25';
+          else if (rate > 25 && rate <= 50) hpClass = 'hp-50';
+          else if (rate > 50 && rate <= 75) hpClass = 'hp-75';
+          else if (rate > 75) hpClass = 'hp-100';
+          rowHtml += `<td><div class="heatmap-cell ${hpClass}"></div></td>`;
+        });
+        rowHtml += `</tr>`;
+        tbody.innerHTML += rowHtml;
+      }
+    }
+
+    function renderRevenueChart(monthly_revenue) {
+      const chartContainer = document.getElementById('revenue-chart');
+      chartContainer.innerHTML = '';
+
+      if (!monthly_revenue || monthly_revenue.length === 0) return;
+
+      const latestMonths = [...monthly_revenue].sort((a,b) => new Date(a.report_month) - new Date(b.report_month)).slice(-6);
+      
+      let maxRev = 0;
+      let totalRooms = 0, totalServices = 0, totalSurcharges = 0;
+      latestMonths.forEach(m => {
+        if (m.total_revenue > maxRev) maxRev = m.total_revenue;
+        totalRooms += m.total_room_cost || 0;
+        totalServices += m.total_services || 0;
+        totalSurcharges += m.total_surcharges || 0;
+      });
+
+      latestMonths.forEach(m => {
+        let roomsH = maxRev ? ((m.total_room_cost || 0) / maxRev) * 150 : 0;
+        let servicesH = maxRev ? ((m.total_services || 0) / maxRev) * 150 : 0;
+        let surchargesH = maxRev ? ((m.total_surcharges || 0) / maxRev) * 150 : 0;
+        
+        let monthName = new Date(m.report_month).toLocaleString('en', { month: 'short' });
+
+        chartContainer.innerHTML += `
+          <div class="d-flex flex-column gap-1" style="width: 40px;">
+            <div style="height: ${servicesH}px; background: var(--color-success-600); width: 100%;"></div>
+            <div style="height: ${surchargesH}px; background: var(--color-warning-600); width: 100%;"></div>
+            <div style="height: ${roomsH}px; background: var(--color-primary-400); width: 100%;"></div>
+            <span class="text-small text-center mt-2">${monthName}</span>
+          </div>`;
+      });
+
+      let overallRev = totalRooms + totalServices + totalSurcharges;
+      if (overallRev > 0) {
+        document.getElementById('donut-total').textContent = (overallRev / 1000000).toFixed(1) + 'M';
+        document.getElementById('rooms-pct').textContent = Math.round(totalRooms / overallRev * 100) + '%';
+        document.getElementById('services-pct').textContent = Math.round(totalServices / overallRev * 100) + '%';
+        document.getElementById('surcharges-pct').textContent = Math.round(totalSurcharges / overallRev * 100) + '%';
+      }
+    }
+
+    fetchStatistics();
   </script>
 </body>
 </html>

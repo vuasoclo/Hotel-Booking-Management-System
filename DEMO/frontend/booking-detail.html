@@ -419,7 +419,7 @@
 
     async function loadBookingDetails() {
       try {
-        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}`);
+        const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}`);
         if (!res.ok) throw new Error("Failed to load booking");
         const data = await res.json();
         currentBookingData = data;
@@ -563,7 +563,7 @@
       const roomId = currentBookingData.room_assignments[0].room_id;
       
       try {
-        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/checkin`, {
+        const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/checkin`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ room_id: roomId, staff_id: session.staff_id || 1 })
@@ -580,7 +580,7 @@
 
     async function handleCheckOut() {
       try {
-        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/checkout`, {
+        const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/checkout`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ staff_id: session.staff_id || 1 })
@@ -598,7 +598,7 @@
     async function handleCancel() {
       if(!confirm("Are you sure you want to cancel this booking?")) return;
       try {
-        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/cancel`, {
+        const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/cancel`, {
           method: 'POST'
         });
         if(res.ok) {
@@ -623,7 +623,7 @@
 
     document.querySelector('#invoiceModal .btn-primary').addEventListener('click', async () => {
       try {
-        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/invoice`, {
+        const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/invoice`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ staff_id: session.staff_id || 1 })
@@ -659,7 +659,7 @@
       const method = document.getElementById('payment-method-select').value || 'Cash';
       if(!amount || amount <= 0) return;
       try {
-        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/payment`, {
+        const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/payment`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ amount: amount, payment_method: method, staff_id: session.staff_id || 1 })
@@ -687,7 +687,7 @@
            return;
         }
         try {
-          const res = await fetch(`http://localhost:8000/api/services/search?q=${encodeURIComponent(q)}&hotel_id=1`);
+          const res = await fetch(`http://localhost:9000/api/services/search?q=${encodeURIComponent(q)}&hotel_id=1`);
           if (res.ok) {
             const data = await res.json();
             const tbody = document.getElementById('services-result-body');
@@ -708,7 +708,7 @@
 
     window.addServiceToBooking = async function(serviceId) {
       try {
-        const res = await fetch(`http://localhost:8000/api/bookings/${bookingId}/services`, {
+        const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/services`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
           body: JSON.stringify({ service_id: serviceId, quantity: 1, staff_id: session.staff_id || 1 })

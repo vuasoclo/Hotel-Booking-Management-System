@@ -260,7 +260,7 @@
       try {
         const checkinDate = checkin.split('T')[0];
         const checkoutDate = checkout.split('T')[0];
-        const res = await fetch(`http://localhost:8000/api/rooms/available?checkin=${checkinDate}&checkout=${checkoutDate}`);
+        const res = await fetch(`http://localhost:9000/api/rooms/available?checkin=${checkinDate}&checkout=${checkoutDate}`);
         if (!res.ok) throw new Error("Search failed");
         const data = await res.json();
         
@@ -348,7 +348,7 @@
       const phone = document.getElementById('guest-phone').value.trim();
       if (!phone) return;
       try {
-        const res = await fetch(`http://localhost:8000/api/customers/lookup`, {
+        const res = await fetch(`http://localhost:9000/api/customers/lookup`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ phone_number: phone })
@@ -389,7 +389,7 @@
         const idempotencyKey = crypto.randomUUID();
 
         // 1. Begin
-        const resBegin = await fetch(`http://localhost:8000/api/bookings/begin`, {
+        const resBegin = await fetch(`http://localhost:9000/api/bookings/begin`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -406,7 +406,7 @@
 
         // 2. Add Rooms
         for (const r of selectedRooms) {
-          await fetch(`http://localhost:8000/api/bookings/${bookingId}/rooms`, {
+          await fetch(`http://localhost:9000/api/bookings/${bookingId}/rooms`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -419,7 +419,7 @@
 
         // 2.5 Add Services
         for (const s of selectedServicesList) {
-          await fetch(`http://localhost:8000/api/bookings/${bookingId}/services`, {
+          await fetch(`http://localhost:9000/api/bookings/${bookingId}/services`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -431,7 +431,7 @@
         }
 
         // 3. Finalize
-        const resFin = await fetch(`http://localhost:8000/api/bookings/${bookingId}/finalize`, {
+        const resFin = await fetch(`http://localhost:9000/api/bookings/${bookingId}/finalize`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({})
@@ -457,7 +457,7 @@
         const q = e.target.value.trim();
         if (!q) return;
         try {
-          const res = await fetch(`http://localhost:8000/api/services/search?q=${encodeURIComponent(q)}&hotel_id=1`);
+          const res = await fetch(`http://localhost:9000/api/services/search?q=${encodeURIComponent(q)}&hotel_id=1`);
           if (res.ok) {
             const data = await res.json();
             const tbody = document.querySelector('#services-result-table tbody');

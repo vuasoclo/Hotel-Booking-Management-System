@@ -189,7 +189,7 @@
 
     async function fetchStatistics() {
       try {
-        const response = await fetch('http://localhost:8000/api/statistics');
+        const response = await fetch('http://localhost:9000/api/statistics');
         if (!response.ok) throw new Error('API failed');
         const data = await response.json();
         

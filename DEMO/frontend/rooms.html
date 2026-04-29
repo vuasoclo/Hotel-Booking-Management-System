@@ -113,7 +113,7 @@
 
       async function fetchRooms() {
         try {
-          const response = await fetch('http://localhost:8000/api/rooms/status');
+          const response = await fetch('http://localhost:9000/api/rooms/status');
           if (!response.ok) throw new Error('Network response was not ok');
           allRooms = await response.json();
           renderRooms();
@@ -209,7 +209,7 @@
 
       async function cleanRoom(roomId) {
         try {
-          const response = await fetch(`http://localhost:8000/api/rooms/${roomId}/housekeeping?staff_id=${sessionData.staffId}`, {
+          const response = await fetch(`http://localhost:9000/api/rooms/${roomId}/housekeeping?staff_id=${sessionData.staffId}`, {
             method: 'POST'
           });
           if (!response.ok) throw new Error('Housekeeping failed');

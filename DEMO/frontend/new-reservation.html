@@ -232,7 +232,8 @@
       document.getElementById('checkout').value = fmt(co, 12, 0);
     })();
 
-    // ─── Booking State ────────────────────────────────────────────────────────
+    // ─── Booking State ────────────────────────────────────────────────────────────
+    const BREAKFAST_PRICE = 150000;
     let selectedRooms = [];
     let selectedServices = [];
     let roomTotalCost = 0;
@@ -306,19 +307,28 @@
 
     window.addRoom = function(typeId, typeName, price, maxAvail) {
       const isBreakfast = document.getElementById(`breakfast-${typeId}`).checked;
-      
+      // Giá hiệu dụng: cộng breakfast nếu được chọn
+      const effectivePrice = price + (isBreakfast ? BREAKFAST_PRICE : 0);
+
+      // Lỗi #2 FIX: tổng qty của TẤT CẢ variants cùng typeId (breakfast và no-breakfast)
+      const totalQtyForType = selectedRooms
+        .filter(r => r.typeId === typeId)
+        .reduce((sum, r) => sum + r.qty, 0);
+
+      if (totalQtyForType >= maxAvail) {
+        alert(`Chỉ còn ${maxAvail} phòng loại ${typeName} trống trong khoảng thời gian này.`);
+        return;
+      }
+
+      // Tìm entry hiện có cùng typeId và cùng isBreakfast để increment
       const existing = selectedRooms.find(r => r.typeId === typeId && r.isBreakfast === isBreakfast);
       if (existing) {
-        if (existing.qty >= maxAvail) {
-          alert(`Chỉ còn ${maxAvail} phòng loại ${typeName} trống trong khoảng thời gian này.`);
-          return;
-        }
         existing.qty++;
-        existing.subtotal += price;
+        existing.subtotal += effectivePrice; // dùng effectivePrice (có thể khác price ban đầu)
       } else {
-        selectedRooms.push({ typeId, typeName, price, qty: 1, subtotal: price, isBreakfast, maxAvail });
+        selectedRooms.push({ typeId, typeName, price: effectivePrice, qty: 1, subtotal: effectivePrice, isBreakfast, maxAvail });
       }
-      
+
       renderSelectedRooms();
     };
 

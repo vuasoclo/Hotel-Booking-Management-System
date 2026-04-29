@@ -8,7 +8,7 @@ router = APIRouter(prefix="/api/services", tags=["Services"])
 def search_services(q: str = ""):
     """Tìm kiếm dịch vụ theo tên."""
     result = execute(
-        "SELECT id, name, unit_price as price FROM services WHERE name ILIKE %s",
+        "SELECT id, id AS service_id, name, name AS service_name, unit_price as price, category FROM services WHERE name ILIKE %s",
         (f"%{q}%",), fetch="all"
     )
     return result or []

@@ -31,9 +31,27 @@ INSERT INTO rooms (hotel_id, room_number, room_type_id, status) VALUES
   (1, '201', 2, 'Available'), (1, '202', 2, 'Available'),
   (1, '301', 3, 'Available'), (1, '302', 3, 'Available');
 
--- 8. Inventory (30 ngày)
+-- 7. Services
+INSERT INTO services (hotel_id, name, unit_price, category) VALUES
+  (1, 'Laundry Service', 50000, 'Housekeeping'),
+  (1, 'Airport Transfer', 350000, 'Transportation'),
+  (1, 'Spa Massage 60p', 500000, 'Wellness'),
+  (1, 'Mini-bar Snack', 25000, 'F&B'),
+  (1, 'Extra Bed', 200000, 'Room');
+
+-- 8. Inventory — total_inventory = số phòng vật lý thực tế theo từng loại
+--    (không hardcode, suy ra từ bảng rooms)
 INSERT INTO room_type_inventory (room_type_id, date, total_inventory, total_reserved)
-SELECT rt.id, d::DATE, 3, 0 FROM room_types rt CROSS JOIN generate_series(CURRENT_DATE - 5, CURRENT_DATE + 25, '1 day') d;
+SELECT
+    rt.id,
+    d::DATE,
+    COUNT(r.id)::INT AS total_inventory,  -- đếm phòng vật lý thực tế
+    0               AS total_reserved
+FROM room_types rt
+CROSS JOIN generate_series(CURRENT_DATE - 5, CURRENT_DATE + 25, '1 day') d
+LEFT  JOIN rooms r ON r.room_type_id = rt.id
+GROUP BY rt.id, d::DATE;
+
 
 -- =============================================================================
 -- KỊCH BẢN PHÂN MẢNH TRÊN PHÒNG STANDARD (101, 102, 104)
@@ -81,8 +99,19 @@ VALUES (6, 1, 1, 'Active', CURRENT_DATE + 4 + time '14:00', CURRENT_DATE + 5 + t
 INSERT INTO booking_details (booking_id, room_type_id, quantity, agreed_price) VALUES (6, 1, 1, 800000);
 INSERT INTO room_assignments (booking_id, room_id, check_in, check_out) VALUES (6, 2, CURRENT_DATE + 4 + time '14:00', CURRENT_DATE + 5 + time '12:00');
 
--- C. ĐỒNG BỘ INVENTORY
-UPDATE room_type_inventory SET total_reserved = total_reserved + 1 WHERE room_type_id = 1 AND date BETWEEN CURRENT_DATE - 2 AND CURRENT_DATE + 6;
+-- C. ĐỒNG BỘ INVENTORY — tính lại total_reserved từ booking_details thực tế
+--    (đúng hơn là cộng thủ công theo từng booking)
+UPDATE room_type_inventory rti
+SET total_reserved = (
+    SELECT COALESCE(SUM(bd.quantity), 0)
+    FROM booking_details bd
+    JOIN bookings b ON b.id = bd.booking_id
+    WHERE bd.room_type_id = rti.room_type_id
+      AND b.status IN ('Pending', 'Active', 'Checked-in')
+      AND b.check_in::DATE  <= rti.date
+      AND b.check_out::DATE >  rti.date
+);
+
 
 -- =============================================================================
 -- RESET SEQUENCES — bắt buộc sau khi INSERT với explicit id

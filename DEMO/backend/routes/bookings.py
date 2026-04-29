@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 from models.schemas import (
     BeginBookingRequest, AddRoomDetailRequest, FinalizeBookingRequest,
     CheckInRequest, CheckOutRequest, IssueInvoiceRequest, RecordPaymentRequest,
-    CreateBookingRequest
+    CreateBookingRequest, AddServiceRequest
 )
 from utils.db import execute, execute_in_transaction
 
@@ -52,11 +52,52 @@ def create_booking(body: CreateBookingRequest):
         else:
             booking_id = row["booking_id"]
 
-        # ── 2. Add Room Details ─────────────────────────────────────────────
+        # ── 2. Add Room Details + Breakfast Surcharge ──────────────────────
+        # Tính số đêm để tính breakfast surcharge
+        cur.execute(
+            "SELECT GREATEST((check_out::DATE - check_in::DATE), 1) AS nights "
+            "FROM bookings WHERE id = %s",
+            (booking_id,)
+        )
+        nights = cur.fetchone()["nights"]
+
+        BREAKFAST_PRICE_PER_ROOM_PER_NIGHT = 150000  # VND
+
+        # Gộp các phòng cùng room_type_id để tránh lỗi uq_booking_room_type
+        aggregated_rooms = {}
         for room in body.rooms:
+            tid = room.room_type_id
+            if tid not in aggregated_rooms:
+                aggregated_rooms[tid] = {
+                    "quantity": 0,
+                    "is_breakfast_included": False # Sẽ là True nếu có bất kỳ phòng nào có breakfast
+                }
+            aggregated_rooms[tid]["quantity"] += room.quantity
+            if room.is_breakfast_included:
+                aggregated_rooms[tid]["is_breakfast_included"] = True
+            
+            # Phụ phí bữa sáng tính ngay cho từng item lẻ
+            if room.is_breakfast_included:
+                cur.execute("SELECT type_name FROM room_types WHERE id = %s", (room.room_type_id,))
+                rt_row = cur.fetchone()
+                type_name_bf = rt_row["type_name"] if rt_row else f"TypeID {room.room_type_id}"
+
+                surcharge_amount = BREAKFAST_PRICE_PER_ROOM_PER_NIGHT * room.quantity * nights
+                cur.execute(
+                    "INSERT INTO booking_surcharges (booking_id, surcharge_type, amount, description) "
+                    "VALUES (%s, 'Other', %s, %s)",
+                    (
+                        booking_id,
+                        surcharge_amount,
+                        f"Breakfast — {type_name_bf} × {room.quantity} phòng × {nights} đêm"
+                    )
+                )
+
+        # Gọi DB Procedure cho mỗi loại phòng đã gộp
+        for tid, data in aggregated_rooms.items():
             cur.execute(
                 "CALL add_room_detail_to_booking(%s, %s, %s, %s)",
-                (booking_id, room.room_type_id, room.quantity, room.is_breakfast_included)
+                (booking_id, tid, data["quantity"], data["is_breakfast_included"])
             )
 
         # ── 3. Finalize (Pending → Active, apply time surcharges) ───────────
@@ -251,6 +292,17 @@ def get_booking_detail(booking_id: int):
         "room_assignments": assignments or [],
         "services": services or [],
     }
+
+@router.post("/{booking_id}/services")
+def add_service_to_existing_booking(booking_id: int, body: AddServiceRequest):
+    """Thêm dịch vụ cho một booking đã tồn tại."""
+    execute(
+        "INSERT INTO service_usage (booking_id, service_id, quantity, used_at, staff_id) VALUES (%s, %s, %s, NOW(), %s)",
+        (booking_id, body.service_id, body.quantity, body.staff_id)
+    )
+    # Tổng tiền sẽ tự động cập nhật nhờ trigger trg_sync_total_amount trên bảng service_usage
+    return {"success": True}
+
 
 @router.post("/{booking_id}/checkin")
 def checkin(booking_id: int, body: CheckInRequest):

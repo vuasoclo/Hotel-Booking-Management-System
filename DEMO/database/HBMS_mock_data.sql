@@ -83,3 +83,18 @@ INSERT INTO room_assignments (booking_id, room_id, check_in, check_out) VALUES (
 
 -- C. ĐỒNG BỘ INVENTORY
 UPDATE room_type_inventory SET total_reserved = total_reserved + 1 WHERE room_type_id = 1 AND date BETWEEN CURRENT_DATE - 2 AND CURRENT_DATE + 6;
+
+-- =============================================================================
+-- RESET SEQUENCES — bắt buộc sau khi INSERT với explicit id
+-- Nếu không reset, SERIAL sẽ generate lại từ 1 và gây duplicate key conflict
+-- =============================================================================
+SELECT setval(pg_get_serial_sequence('bookings',         'id'), MAX(id)) FROM bookings;
+SELECT setval(pg_get_serial_sequence('booking_details',  'id'), MAX(id)) FROM booking_details;
+SELECT setval(pg_get_serial_sequence('room_assignments', 'id'), MAX(id)) FROM room_assignments;
+SELECT setval(pg_get_serial_sequence('booking_surcharges','id'), MAX(id)) FROM booking_surcharges;
+SELECT setval(pg_get_serial_sequence('hotels',           'id'), MAX(id)) FROM hotels;
+SELECT setval(pg_get_serial_sequence('customers',        'id'), MAX(id)) FROM customers;
+SELECT setval(pg_get_serial_sequence('staff',            'id'), MAX(id)) FROM staff;
+SELECT setval(pg_get_serial_sequence('room_types',       'id'), MAX(id)) FROM room_types;
+SELECT setval(pg_get_serial_sequence('rooms',            'id'), MAX(id)) FROM rooms;
+SELECT setval(pg_get_serial_sequence('services',         'id'), MAX(id)) FROM services WHERE id IS NOT NULL;

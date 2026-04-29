@@ -3,6 +3,7 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
 from fastapi import HTTPException
+from typing import Callable, Any
 
 load_dotenv()
 
@@ -32,6 +33,28 @@ def execute(sql: str, params: tuple = (), fetch: str = "none"):
                 result = None
             conn.commit()
         return result
+    except Exception as e:
+        conn.rollback()
+        raise HTTPException(status_code=400, detail=str(e))
+    finally:
+        conn.close()
+
+def execute_in_transaction(fn: Callable[[Any], Any]):
+    """
+    Chạy một callable fn(cur) trong 1 connection/transaction duy nhất.
+    Nếu fn raise bất kỳ Exception nào → ROLLBACK toàn bộ.
+    Nếu thành công → COMMIT.
+    fn nhận psycopg2 cursor (RealDictCursor) và có thể raise HTTPException để abort.
+    """
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            result = fn(cur)
+        conn.commit()
+        return result
+    except HTTPException:
+        conn.rollback()
+        raise
     except Exception as e:
         conn.rollback()
         raise HTTPException(status_code=400, detail=str(e))

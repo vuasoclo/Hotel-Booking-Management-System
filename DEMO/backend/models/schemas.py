@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class LoginRequest(BaseModel):
     username: str
@@ -47,3 +47,22 @@ class PreAssignRequest(BaseModel):
     booking_id: int
     room_id: int
     staff_id: int
+
+class RoomItem(BaseModel):
+    room_type_id: int
+    quantity: int
+    is_breakfast_included: bool = False
+
+class ServiceItem(BaseModel):
+    service_id: int
+    quantity: int
+
+class CreateBookingRequest(BaseModel):
+    hotel_id: int
+    customer_id: int
+    check_in: str
+    check_out: str
+    idempotency_key: str
+    rooms: List[RoomItem]
+    services: Optional[List[ServiceItem]] = []
+    staff_id: Optional[int] = 1

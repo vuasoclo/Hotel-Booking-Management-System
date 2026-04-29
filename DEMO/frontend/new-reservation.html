@@ -75,12 +75,13 @@
             <div class="row g-3 mb-3">
               <div class="col-md-6">
                 <label class="text-small fw-semibold mb-1">Check-in</label>
-                <input type="datetime-local" id="checkin" class="form-control form-control-custom" value="2026-04-25T14:00">
+                <input type="datetime-local" id="checkin" class="form-control form-control-custom">
               </div>
               <div class="col-md-6">
                 <label class="text-small fw-semibold mb-1">Check-out</label>
-                <input type="datetime-local" id="checkout" class="form-control form-control-custom" value="2026-04-26T12:00">
+                <input type="datetime-local" id="checkout" class="form-control form-control-custom">
               </div>
+
             </div>
             <div class="d-flex justify-content-end mb-4 border-bottom pb-4">
               <button id="btn-search" class="btn-primary-custom d-flex align-items-center gap-2">
@@ -221,6 +222,16 @@
   <script>
     feather.replace();
 
+    // ─── Set default dates: hôm nay +1 (check-in 14:00) và +2 (check-out 12:00) ──
+    (function setDefaultDates() {
+      const pad = n => String(n).padStart(2, '0');
+      const fmt = (d, h, m) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(h)}:${pad(m)}`;
+      const ci = new Date(); ci.setDate(ci.getDate() + 1);
+      const co = new Date(); co.setDate(co.getDate() + 2);
+      document.getElementById('checkin').value  = fmt(ci, 14, 0);
+      document.getElementById('checkout').value = fmt(co, 12, 0);
+    })();
+
     // ─── Booking State ────────────────────────────────────────────────────────
     let selectedRooms = [];
     let selectedServices = [];
@@ -282,7 +293,7 @@
                 <input class="form-check-input" type="checkbox" id="breakfast-${item.room_type_id}">
                 <label class="form-check-label text-small" for="breakfast-${item.room_type_id}">+ Breakfast</label>
               </div>
-              <button class="btn btn-sm btn-outline-primary" onclick="addRoom(${item.room_type_id}, '${item.type_name}', ${item.base_price})">+ Add</button>
+              <button class="btn btn-sm btn-outline-primary" onclick="addRoom(${item.room_type_id}, '${item.type_name}', ${item.base_price}, ${item.min_available})">+ Add</button>
             </td>
           `;
           tbody.appendChild(tr);
@@ -293,15 +304,19 @@
       }
     });
 
-    window.addRoom = function(typeId, typeName, price) {
+    window.addRoom = function(typeId, typeName, price, maxAvail) {
       const isBreakfast = document.getElementById(`breakfast-${typeId}`).checked;
       
       const existing = selectedRooms.find(r => r.typeId === typeId && r.isBreakfast === isBreakfast);
       if (existing) {
+        if (existing.qty >= maxAvail) {
+          alert(`Chỉ còn ${maxAvail} phòng loại ${typeName} trống trong khoảng thời gian này.`);
+          return;
+        }
         existing.qty++;
         existing.subtotal += price;
       } else {
-        selectedRooms.push({ typeId, typeName, price, qty: 1, subtotal: price, isBreakfast });
+        selectedRooms.push({ typeId, typeName, price, qty: 1, subtotal: price, isBreakfast, maxAvail });
       }
       
       renderSelectedRooms();
@@ -383,69 +398,70 @@
       btnConfirm.disabled = true;
       btnConfirm.innerText = "Processing...";
 
+      // Xoá thông báo lỗi cũ nếu có
+      const existingErr = document.getElementById('booking-error-msg');
+      if (existingErr) existingErr.remove();
+
       try {
-        const checkin = document.getElementById('checkin').value.replace('T', ' ') + ':00';
+        const checkin  = document.getElementById('checkin').value.replace('T', ' ') + ':00';
         const checkout = document.getElementById('checkout').value.replace('T', ' ') + ':00';
         const idempotencyKey = crypto.randomUUID();
 
-        // 1. Begin
-        const resBegin = await fetch(`http://localhost:9000/api/bookings/begin`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            hotel_id: 1,
-            customer_id: currentGuestId,
-            check_in_date: checkin,
-            check_out_date: checkout,
-            idempotency_key: idempotencyKey
-          })
-        });
-        if (!resBegin.ok) throw new Error("Begin booking failed");
-        const beginData = await resBegin.json();
-        const bookingId = beginData.booking_id;
+        // Lấy staff_id từ session (fallback = 1)
+        const session = JSON.parse(sessionStorage.getItem('hbms_user') || '{}');
 
-        // 2. Add Rooms
-        for (const r of selectedRooms) {
-          await fetch(`http://localhost:9000/api/bookings/${bookingId}/rooms`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              room_type_id: r.typeId,
-              quantity: r.qty,
-              is_breakfast_included: r.isBreakfast
-            })
-          });
+        const payload = {
+          hotel_id:        1,
+          customer_id:     currentGuestId,
+          check_in:        checkin,
+          check_out:       checkout,
+          idempotency_key: idempotencyKey,
+          staff_id:        session.staff_id || 1,
+          rooms: selectedRooms.map(r => ({
+            room_type_id:         r.typeId,
+            quantity:             r.qty,
+            is_breakfast_included: r.isBreakfast
+          })),
+          services: selectedServicesList.map(s => ({
+            service_id: s.id,
+            quantity:   s.qty
+          }))
+        };
+
+        const res = await fetch('http://localhost:9000/api/bookings/create', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(payload)
+        });
+
+        if (res.status === 201) {
+          // Thành công → redirect calendar
+          window.location.href = 'calendar.html';
+          return;
         }
 
-        // 2.5 Add Services
-        for (const s of selectedServicesList) {
-          await fetch(`http://localhost:9000/api/bookings/${bookingId}/services`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              service_id: s.id,
-              quantity: s.qty,
-              staff_id: session.staff_id || 1
-            })
-          });
-        }
+        // Lỗi có body JSON
+        let errMsg = 'Đặt phòng thất bại. Vui lòng thử lại.';
+        try {
+          const errData = await res.json();
+          errMsg = errData.detail || errMsg;
+        } catch (_) {}
 
-        // 3. Finalize
-        const resFin = await fetch(`http://localhost:9000/api/bookings/${bookingId}/finalize`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({})
-        });
-        if (!resFin.ok) throw new Error("Finalize booking failed");
+        // Hiển thị lỗi inline (không dùng alert)
+        const errDiv = document.createElement('div');
+        errDiv.id = 'booking-error-msg';
+        errDiv.className = 'alert alert-danger text-small mt-3 mb-0 py-2';
+        errDiv.innerHTML = `<strong>Lỗi:</strong> ${errMsg}`;
+        btnConfirm.parentElement.insertAdjacentElement('afterend', errDiv);
 
-        // Redirect
-        window.location.href = `booking-detail.html?id=${bookingId}`;
+        btnConfirm.disabled = false;
+        btnConfirm.innerText = "Book Now →";
 
       } catch (err) {
         console.error(err);
-        alert("Có lỗi xảy ra khi tạo booking.");
         btnConfirm.disabled = false;
         btnConfirm.innerText = "Book Now →";
+        alert("Lỗi kết nối: " + err.message);
       }
     });
 

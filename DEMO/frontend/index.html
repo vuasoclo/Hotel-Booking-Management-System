@@ -34,29 +34,7 @@
       color: white;
       margin: 0 auto 16px;
     }
-    .role-badge {
-      display: inline-block;
-      font-size: 11px;
-      font-weight: 700;
-      text-transform: uppercase;
-      padding: 2px 8px;
-      border-radius: 4px;
-      margin-left: 6px;
-    }
-    .role-admin { background: #FEF3C7; color: #92400E; }
-    .role-staff { background: #EFF8FB; color: #0A6B87; }
-    .demo-accounts { background: var(--color-neutral-50); border-radius: 8px; padding: 12px; }
-    .demo-account-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 0;
-      border-bottom: 1px solid var(--color-neutral-200);
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-    .demo-account-row:last-child { border-bottom: none; }
-    .demo-account-row:hover { background: var(--color-primary-50); border-radius: 4px; padding: 6px 4px; }
+
   </style>
 </head>
 <body>
@@ -71,13 +49,13 @@
       <div class="mb-3">
         <label class="text-small fw-semibold mb-1">Username</label>
         <input type="text" id="username" class="form-control form-control-custom"
-               placeholder="admin / staff1 / staff2" autocomplete="username">
+               placeholder="Enter username" autocomplete="username">
       </div>
       <div class="mb-4">
         <label class="text-small fw-semibold mb-1">Password</label>
         <div class="input-group">
           <input type="password" id="password" class="form-control form-control-custom border-end-0"
-                 placeholder="password" autocomplete="current-password">
+                 placeholder="Enter password" autocomplete="current-password">
           <button class="btn btn-outline-secondary border-start-0" type="button"
                   onclick="togglePassword()" style="height:36px;border-color:var(--color-neutral-200)">
             <i data-feather="eye" id="eye-icon" style="width:16px"></i>
@@ -86,28 +64,16 @@
       </div>
 
       <div id="login-error" class="alert alert-danger text-small py-2 d-none" role="alert">
-        Sai tài khoản hoặc mật khẩu.
+        <i data-feather="alert-circle" style="width: 14px; margin-right: 4px;"></i> Invalid username or password!
       </div>
 
-      <button type="submit" class="btn-primary-custom w-100 d-flex align-items-center justify-content-center gap-2"
+      <button type="submit" class="btn btn-primary-custom w-100 mt-2 d-flex justify-content-center align-items-center gap-2"
               style="height:40px">
-        <i data-feather="log-in" style="width:16px"></i> Đăng nhập
+        Sign In <i data-feather="arrow-right" style="width: 16px;"></i>
       </button>
     </form>
 
-    <div class="mt-4">
-      <p class="text-small text-muted mb-2 fw-semibold">Tài khoản demo — click để điền:</p>
-      <div class="demo-accounts">
-        <div class="demo-account-row" onclick="fillCredentials('admin','admin123')">
-          <span class="text-small fw-medium">admin — Nguyễn Admin</span>
-          <span class="role-badge role-admin">Admin</span>
-        </div>
-        <div class="demo-account-row" onclick="fillCredentials('staff','staff123')">
-          <span class="text-small fw-medium">staff — Trần Lễ Tân</span>
-          <span class="role-badge role-staff">Staff</span>
-        </div>
-      </div>
-    </div>
+
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -155,11 +121,7 @@
       }
     }
 
-    function fillCredentials(user, pass) {
-      document.getElementById('username').value = user;
-      document.getElementById('password').value = pass;
-      document.getElementById('login-error').classList.add('d-none');
-    }
+
 
     function togglePassword() {
       const input   = document.getElementById('password');

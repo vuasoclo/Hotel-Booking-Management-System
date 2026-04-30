@@ -91,7 +91,7 @@
 
             <div id="room-results-area" class="d-none">
               <div class="alert alert-warning text-small py-2 mb-3 d-none" id="early-checkin-warning" role="alert">
-                <i data-feather="zap" style="width: 14px; height: 14px;"></i> Check-in trước 14:00 sẽ phát sinh phụ thu Early Check-in.
+                <i data-feather="zap" style="width: 14px; height: 14px;"></i> Check-in before 14:00 will incur an Early Check-in surcharge.
               </div>
               <h3 class="text-subheading mb-3">Available Rooms</h3>
               <table class="table table-custom align-middle mb-5" id="available-rooms-table">
@@ -254,7 +254,7 @@
     document.getElementById('btn-search').addEventListener('click', async () => {
       const checkin = document.getElementById('checkin').value;
       const checkout = document.getElementById('checkout').value;
-      if (!checkin || !checkout) { alert('Vui lòng chọn ngày Check-in và Check-out'); return; }
+      if (!checkin || !checkout) { alert('Please select Check-in and Check-out dates'); return; }
 
       document.getElementById('room-results-area').classList.remove('d-none');
       const tbody = document.querySelector('#available-rooms-table tbody');
@@ -278,7 +278,7 @@
         
         tbody.innerHTML = '';
         if (data.length === 0) {
-          tbody.innerHTML = '<tr><td colspan="4">Không còn phòng trống</td></tr>';
+          tbody.innerHTML = '<tr><td colspan="4">No available rooms</td></tr>';
           return;
         }
 
@@ -301,7 +301,7 @@
         });
       } catch (err) {
         console.error(err);
-        alert("Lỗi khi tìm phòng trống");
+        alert("Error searching for available rooms");
       }
     });
 
@@ -316,7 +316,7 @@
         .reduce((sum, r) => sum + r.qty, 0);
 
       if (totalQtyForType >= maxAvail) {
-        alert(`Chỉ còn ${maxAvail} phòng loại ${typeName} trống trong khoảng thời gian này.`);
+        alert(`Only ${maxAvail} room(s) of type ${typeName} available for the selected dates.`);
         return;
       }
 
@@ -361,7 +361,7 @@
     }
 
     document.getElementById('btn-proceed-booking').addEventListener('click', () => {
-      if (selectedRooms.length === 0) { alert('Vui lòng chọn ít nhất 1 phòng'); return; }
+      if (selectedRooms.length === 0) { alert('Please select at least 1 room'); return; }
       document.getElementById('left-panel').classList.remove('col-lg-8', 'mx-auto');
       document.getElementById('left-panel').classList.add('col-lg-6');
       document.getElementById('right-panel').classList.remove('d-none');
@@ -385,7 +385,7 @@
           currentGuestId = guest.customer_id;
           validateForm();
         } else {
-          alert("Khách hàng chưa có trong hệ thống (Backend chưa hỗ trợ tạo mới)");
+          alert("Guest not found in the system (Backend does not support creating new guests yet)");
           currentGuestId = null;
         }
       } catch (err) {
@@ -426,7 +426,7 @@
           check_in:        checkin,
           check_out:       checkout,
           idempotency_key: idempotencyKey,
-          staff_id:        session.staff_id || 1,
+          staff_id:        session.staffId || 1,
           rooms: selectedRooms.map(r => ({
             room_type_id:         r.typeId,
             quantity:             r.qty,
@@ -451,7 +451,7 @@
         }
 
         // Lỗi có body JSON
-        let errMsg = 'Đặt phòng thất bại. Vui lòng thử lại.';
+        let errMsg = 'Booking failed. Please try again.';
         try {
           const errData = await res.json();
           errMsg = errData.detail || errMsg;
@@ -461,7 +461,7 @@
         const errDiv = document.createElement('div');
         errDiv.id = 'booking-error-msg';
         errDiv.className = 'alert alert-danger text-small mt-3 mb-0 py-2';
-        errDiv.innerHTML = `<strong>Lỗi:</strong> ${errMsg}`;
+        errDiv.innerHTML = `<strong>Error:</strong> ${errMsg}`;
         btnConfirm.parentElement.insertAdjacentElement('afterend', errDiv);
 
         btnConfirm.disabled = false;
@@ -471,7 +471,7 @@
         console.error(err);
         btnConfirm.disabled = false;
         btnConfirm.innerText = "Book Now →";
-        alert("Lỗi kết nối: " + err.message);
+        alert("Connection error: " + err.message);
       }
     });
 
@@ -572,7 +572,12 @@
       const s = JSON.parse(sessionStorage.getItem('hbms_user') || 'null');
       if (!s) { window.location.href = 'index.html'; return; }
       document.getElementById('topbar-name').textContent = s.name;
-      if (s.role === 'admin') { const b = document.getElementById('topbar-role'); b.textContent='Admin'; b.className='badge bg-warning text-dark ms-1'; b.style.display='inline'; }
+      if (s.role === 'admin' || s.role === 'Admin') { 
+        const b = document.getElementById('topbar-role'); b.textContent='Admin'; b.className='badge bg-warning text-dark ms-1'; b.style.display='inline'; 
+      } else {
+        const statsLink = document.querySelector('a[href="statistics.html"]');
+        if (statsLink) statsLink.remove();
+      }
       document.getElementById('btn-logout').addEventListener('click', () => { sessionStorage.removeItem('hbms_user'); window.location.href='index.html'; });
     })();
   </script>

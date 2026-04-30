@@ -45,19 +45,19 @@
         </div>
         <div class="d-flex gap-2">
           <select id="filter-period" class="form-select form-control-custom" style="width: 150px;">
-            <option value="all">Tất cả thời gian</option>
-            <option value="this_month">Tháng này</option>
-            <option value="last_month">Tháng trước</option>
-            <option value="this_quarter">Quý này</option>
+            <option value="all">All time</option>
+            <option value="this_month">This month</option>
+            <option value="last_month">Last month</option>
+            <option value="this_quarter">This quarter</option>
           </select>
           <select id="filter-room-type" class="form-select form-control-custom" style="width: 150px;">
-            <option value="">Tất cả loại phòng</option>
+            <option value="">All room types</option>
             <option value="1">Standard</option>
             <option value="2">Deluxe</option>
             <option value="3">Suite</option>
           </select>
           <button class="btn btn-outline-secondary btn-sm d-flex align-items-center gap-2">
-            <i data-feather="download" style="width:14px"></i> Xuất CSV
+            <i data-feather="download" style="width:14px"></i> Export CSV
           </button>
         </div>
       </div>
@@ -74,7 +74,7 @@
           <div class="stat-card">
             <div class="stat-label">Bookings Count</div>
             <div class="stat-value" id="bookings-count">0</div>
-            <div class="stat-trend text-muted">Tổng số booking</div>
+            <div class="stat-trend text-muted">Total bookings</div>
           </div>
         </div>
         <div class="col-md-4">
@@ -95,14 +95,14 @@
           <div class="stat-card">
             <div class="stat-label">Collected</div>
             <div class="stat-value" id="total-collected">0</div>
-            <div class="stat-trend text-muted">Bao gồm VAT</div>
+            <div class="stat-trend text-muted">Including VAT</div>
           </div>
         </div>
         <div class="col-md-4">
           <div class="stat-card">
             <div class="stat-label">Outstanding</div>
             <div class="stat-value text-danger" id="total-outstanding">0</div>
-            <div class="stat-trend text-danger">Số dư chưa thu</div>
+            <div class="stat-trend text-danger">Unpaid balance</div>
           </div>
         </div>
       </div>
@@ -113,7 +113,7 @@
           <table class="table table-borderless align-middle">
             <thead>
               <tr class="text-small text-muted" id="heatmap-head">
-                <th style="width: 120px;">Phòng</th>
+                <th style="width: 120px;">Room</th>
               </tr>
             </thead>
             <tbody id="heatmap-body">
@@ -155,12 +155,13 @@
             <h3 class="text-heading mb-4 w-100">REVENUE BREAKDOWN</h3>
             
             <div class="position-relative" style="width: 180px; height: 180px;">
-              <svg viewBox="0 0 36 36" style="transform: rotate(-90deg);">
-                <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="var(--color-primary-400)" stroke-width="4" stroke-dasharray="74 26"></circle>
-                <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="var(--color-success-600)" stroke-width="4" stroke-dasharray="17 83" stroke-dashoffset="-74"></circle>
-                <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="var(--color-warning-600)" stroke-width="4" stroke-dasharray="9 91" stroke-dashoffset="-91"></circle>
+              <svg viewBox="0 0 36 36" style="transform: rotate(-90deg);" id="donut-svg">
+                <circle cx="18" cy="18" r="15.915" fill="transparent" stroke="var(--color-neutral-200)" stroke-width="4" stroke-dasharray="100 0"></circle>
+                <circle id="donut-rooms" cx="18" cy="18" r="15.915" fill="transparent" stroke="var(--color-primary-400)" stroke-width="4" stroke-dasharray="0 100" stroke-dashoffset="0"></circle>
+                <circle id="donut-services" cx="18" cy="18" r="15.915" fill="transparent" stroke="var(--color-success-600)" stroke-width="4" stroke-dasharray="0 100" stroke-dashoffset="0"></circle>
+                <circle id="donut-surcharges" cx="18" cy="18" r="15.915" fill="transparent" stroke="var(--color-warning-600)" stroke-width="4" stroke-dasharray="0 100" stroke-dashoffset="0"></circle>
               </svg>
-              <div class="position-absolute top-50 left-50 translate-middle text-center">
+              <div class="position-absolute top-50 start-50 translate-middle text-center">
                 <div class="text-small text-muted">Total</div>
                 <div class="fw-bold" id="donut-total">0M</div>
               </div>
@@ -195,7 +196,13 @@
       const s = JSON.parse(sessionStorage.getItem('hbms_user') || 'null');
       if (!s) { window.location.href = 'index.html'; return; }
       document.getElementById('topbar-name').textContent = s.name;
-      if (s.role === 'admin') { const b = document.getElementById('topbar-role'); b.textContent='Admin'; b.className='badge bg-warning text-dark ms-1'; b.style.display='inline'; }
+      if (s.role === 'admin' || s.role === 'Admin') { 
+        const b = document.getElementById('topbar-role'); b.textContent='Admin'; b.className='badge bg-warning text-dark ms-1'; b.style.display='inline'; 
+      } else {
+        alert('You do not have permission to access Statistics!');
+        window.location.href = 'calendar.html';
+        return;
+      }
       document.getElementById('btn-logout').addEventListener('click', () => { sessionStorage.removeItem('hbms_user'); window.location.href='index.html'; });
     })();
 
@@ -249,7 +256,7 @@
       const latestDates = dates.slice(0, 30); // 30 latest dates
       
       const thead = document.getElementById('heatmap-head');
-      thead.innerHTML = '<th style="width: 120px;">Phòng</th>';
+      thead.innerHTML = '<th style="width: 120px;">Room</th>';
       latestDates.forEach(d => {
         const day = new Date(d).getDate().toString().padStart(2, '0');
         thead.innerHTML += `<th>${day}</th>`;
@@ -314,10 +321,28 @@
 
       let overallRev = totalRooms + totalServices + totalSurcharges;
       if (overallRev > 0) {
+        let roomsPct = Math.round(totalRooms / overallRev * 100);
+        let servicesPct = Math.round(totalServices / overallRev * 100);
+        let surchargesPct = 100 - roomsPct - servicesPct;
+
         document.getElementById('donut-total').textContent = (overallRev / 1000000).toFixed(1) + 'M';
-        document.getElementById('rooms-pct').textContent = Math.round(totalRooms / overallRev * 100) + '%';
-        document.getElementById('services-pct').textContent = Math.round(totalServices / overallRev * 100) + '%';
-        document.getElementById('surcharges-pct').textContent = Math.round(totalSurcharges / overallRev * 100) + '%';
+        document.getElementById('rooms-pct').textContent = roomsPct + '%';
+        document.getElementById('services-pct').textContent = servicesPct + '%';
+        document.getElementById('surcharges-pct').textContent = surchargesPct + '%';
+
+        // Dynamic donut chart SVG
+        const donutRooms = document.getElementById('donut-rooms');
+        const donutServices = document.getElementById('donut-services');
+        const donutSurcharges = document.getElementById('donut-surcharges');
+
+        donutRooms.setAttribute('stroke-dasharray', `${roomsPct} ${100 - roomsPct}`);
+        donutRooms.setAttribute('stroke-dashoffset', '0');
+
+        donutServices.setAttribute('stroke-dasharray', `${servicesPct} ${100 - servicesPct}`);
+        donutServices.setAttribute('stroke-dashoffset', `-${roomsPct}`);
+
+        donutSurcharges.setAttribute('stroke-dasharray', `${surchargesPct} ${100 - surchargesPct}`);
+        donutSurcharges.setAttribute('stroke-dashoffset', `-${roomsPct + servicesPct}`);
       }
     }
 

@@ -105,7 +105,12 @@
         sessionData = JSON.parse(sessionStorage.getItem('hbms_user') || 'null');
         if (!sessionData) { window.location.href = 'index.html'; return; }
         document.getElementById('topbar-name').textContent = sessionData.name;
-        if (sessionData.role === 'admin') { const b = document.getElementById('topbar-role'); b.textContent='Admin'; b.className='badge bg-warning text-dark ms-1'; b.style.display='inline'; }
+        if (sessionData.role === 'admin' || sessionData.role === 'Admin') { 
+          const b = document.getElementById('topbar-role'); b.textContent='Admin'; b.className='badge bg-warning text-dark ms-1'; b.style.display='inline'; 
+        } else {
+          const statsLink = document.querySelector('a[href="statistics.html"]');
+          if (statsLink) statsLink.remove();
+        }
         document.getElementById('btn-logout').addEventListener('click', () => { sessionStorage.removeItem('hbms_user'); window.location.href='index.html'; });
       })();
 
@@ -119,7 +124,7 @@
           renderRooms();
         } catch (error) {
           console.error('Error fetching rooms:', error);
-          alert('Không thể tải dữ liệu phòng.');
+          alert('Unable to load room data.');
         }
       }
 
@@ -216,7 +221,7 @@
           fetchRooms();
         } catch (error) {
           console.error('Error cleaning room:', error);
-          alert('Không thể dọn phòng.');
+          alert('Unable to clean room.');
         }
       }
 

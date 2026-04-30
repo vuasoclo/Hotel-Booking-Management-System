@@ -84,11 +84,11 @@
             <button class="btn btn-outline-secondary btn-sm"><i data-feather="chevron-right"></i></button>
           </div>
           <span class="fw-bold px-2" id="date-range-text">...</span>
-          <button class="btn btn-light btn-sm border" onclick="shiftDate(0)">Today</button>
+          <button class="btn btn-outline-secondary px-2" onclick="shiftDate(0)">Today</button>
         </div>
         <div class="d-flex gap-2">
-          <button id="btn-defragment" class="btn btn-outline-primary btn-sm d-flex align-items-center gap-1">
-            <i data-feather="zap" style="width:14px"></i> Defragment
+          <button class="btn btn-sm btn-outline-primary fw-bold" id="btn-defragment" style="height:32px;">
+            <i data-feather="grid" style="width:14px"></i> Defragment
           </button>
           <a href="new-reservation.html" class="btn btn-primary btn-sm d-flex align-items-center gap-1">
             <i data-feather="plus" style="width:14px"></i> New Reservation
@@ -119,11 +119,14 @@
     const session = JSON.parse(sessionStorage.getItem('hbms_user') || 'null');
     if (!session) { window.location.href = 'index.html'; }
     document.getElementById('topbar-name').textContent = session ? session.name : 'Guest';
-    if (session && session.role === 'admin') {
+    if (session && (session.role === 'admin' || session.role === 'Admin')) {
       const badge = document.getElementById('topbar-role');
       badge.textContent = 'Admin';
       badge.className = 'badge bg-warning text-dark ms-1';
       badge.style.display = 'inline';
+    } else {
+      const statsLink = document.querySelector('a[href="statistics.html"]');
+      if (statsLink) statsLink.remove();
     }
     document.getElementById('btn-logout').addEventListener('click', () => {
       sessionStorage.removeItem('hbms_user');
@@ -156,7 +159,7 @@
         processCalendarData(data);
         renderCalendar();
       } catch (err) {
-        console.error("Lỗi khi load calendar", err);
+        console.error("Error loading calendar", err);
       }
     }
 
@@ -218,7 +221,7 @@
             let inits = item.customer_name ? item.customer_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'G';
             bookings.push({
               id: item.booking_id,
-              guest: item.customer_name || 'Khách',
+              guest: item.customer_name || 'Guest',
               inits: inits,
               roomId: item.room_id,
               status: item.booking_status,
@@ -355,7 +358,7 @@
               fetchCalendar();
             } catch (e) {
               console.error(e);
-              alert("Lỗi khi chuyển phòng!");
+              alert("Error moving room!");
             }
           }
         } else {
@@ -375,7 +378,7 @@
         fetchCalendar();
       } catch (e) {
         console.error(e);
-        alert("Lỗi khi chạy defragment!");
+        alert("Error running defragment!");
       }
     });
 

@@ -8,8 +8,8 @@ INSERT INTO hotels (name, address, hotline) VALUES
 
 -- 2. Staff
 INSERT INTO staff (hotel_id, name, role, username, password_hash) VALUES
-  (1, 'Nguyễn Admin', 'Admin', 'admin', 'admin123'),
-  (1, 'Trần Lễ Tân',  'Staff', 'staff', 'staff123');
+  (1, 'Nguyễn Admin', 'Admin', 'admin', 'adminpassword'),
+  (1, 'Trần Lễ Tân',  'Staff', 'staff', 'staffpassword');
 
 -- 3. Customers
 INSERT INTO customers (full_name, phone_number, email, identity_card, date_of_birth) VALUES

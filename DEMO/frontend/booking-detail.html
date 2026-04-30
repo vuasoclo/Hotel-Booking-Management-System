@@ -363,8 +363,8 @@
           </div>
           <p class="text-small text-muted mb-3">
             <i data-feather="info" style="width:14px; vertical-align:middle;"></i>
-            Issue Invoice có thể gọi lại để cập nhật số liệu mới nhất.
-            Sau khi Completed, đây là bước chốt sổ cuối cùng.
+            Issue Invoice can be called again to update the latest figures.
+            Once Completed, this is the final step.
           </p>
           <button class="btn btn-primary w-100 fw-bold" data-bs-dismiss="modal"
             style="background-color: var(--color-primary-600)">
@@ -384,7 +384,12 @@
       const s = JSON.parse(sessionStorage.getItem('hbms_user') || 'null');
       if (!s) { window.location.href = 'index.html'; return; }
       document.getElementById('topbar-name').textContent = s.name;
-      if (s.role === 'admin') { const b = document.getElementById('topbar-role'); b.textContent='Admin'; b.className='badge bg-warning text-dark ms-1'; b.style.display='inline'; }
+      if (s.role === 'admin' || s.role === 'Admin') { 
+        const b = document.getElementById('topbar-role'); b.textContent='Admin'; b.className='badge bg-warning text-dark ms-1'; b.style.display='inline'; 
+      } else {
+        const statsLink = document.querySelector('a[href="statistics.html"]');
+        if (statsLink) statsLink.remove();
+      }
       document.getElementById('btn-logout').addEventListener('click', () => { sessionStorage.removeItem('hbms_user'); window.location.href='index.html'; });
     })();
 
@@ -395,7 +400,7 @@
     let currentBookingData = null;
 
     if (!bookingId) {
-      alert('Không tìm thấy mã booking.');
+      alert('Booking ID not found.');
       window.location.href = 'calendar.html';
     }
 
@@ -426,7 +431,7 @@
         renderBooking(data);
       } catch (err) {
         console.error(err);
-        alert('Lỗi tải dữ liệu booking.');
+        alert('Failed to load booking data.');
       }
     }
 
@@ -533,7 +538,7 @@
         
         btnCancel.classList.add('d-none');
         btnPayment.classList.add('d-none'); // Can't pay if completed? Wait, yes you can if balance > 0, but usually balance is 0. Let's hide it or disable if balance is 0.
-        btnAddService.classList.add('d-none');
+        // Services cannot be added to completed bookings (modal button hidden via CSS or disabled)
 
         if (statusBadge) {
           statusBadge.className = 'status-badge status-completed';
@@ -558,24 +563,25 @@
     
     async function handleCheckIn() {
       if(!currentBookingData || currentBookingData.room_assignments.length === 0) return;
-      // Note: Backend logic currently asks for room_id in CheckInRequest. 
-      // This system seems to allow multiple rooms, so let's just pick the first room_id for the API.
-      const roomId = currentBookingData.room_assignments[0].room_id;
       
       try {
-        const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/checkin`, {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ room_id: roomId, staff_id: session.staff_id || 1 })
-        });
-        if(res.ok) {
-          alert('Check-in successful!');
-          loadBookingDetails();
-        } else {
-          const err = await res.text();
-          alert('Failed to check-in: ' + err);
+        // Check-in tất cả các phòng trong booking
+        for (const ra of currentBookingData.room_assignments) {
+          const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/checkin`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ room_id: ra.room_id, staff_id: session.staffId || 1 })
+          });
+          if(!res.ok) {
+            const err = await res.text();
+            alert(`Failed to check-in room ${ra.room_number}: ` + err);
+            loadBookingDetails();
+            return;
+          }
         }
-      } catch(err) { console.error(err); alert('Lỗi mạng khi Check-in.'); }
+        alert('Check-in successful!');
+        loadBookingDetails();
+      } catch(err) { console.error(err); alert('Network error during Check-in.'); }
     }
 
     async function handleCheckOut() {
@@ -583,7 +589,7 @@
         const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/checkout`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ staff_id: session.staff_id || 1 })
+          body: JSON.stringify({ staff_id: session.staffId || 1 })
         });
         if(res.ok) {
           alert('Check-out successful!');
@@ -592,7 +598,7 @@
           const err = await res.text();
           alert('Failed to check-out: ' + err);
         }
-      } catch(err) { console.error(err); alert('Lỗi mạng khi Check-out.'); }
+      } catch(err) { console.error(err); alert('Network error during Check-out.'); }
     }
 
     async function handleCancel() {
@@ -608,7 +614,7 @@
           const err = await res.text();
           alert('Failed to cancel: ' + err);
         }
-      } catch(err) { console.error(err); alert('Lỗi mạng khi Cancel.'); }
+      } catch(err) { console.error(err); alert('Network error during Cancel.'); }
     }
 
     // Invoice Logic
@@ -626,7 +632,7 @@
         const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/invoice`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ staff_id: session.staff_id || 1 })
+          body: JSON.stringify({ staff_id: session.staffId || 1 })
         });
         if(res.ok) {
           alert('Invoice issued successfully.');
@@ -662,7 +668,7 @@
         const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/payment`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ amount: amount, payment_method: method, staff_id: session.staff_id || 1 })
+          body: JSON.stringify({ amount: amount, payment_method: method, staff_id: session.staffId || 1 })
         });
         if(res.ok) {
           alert('Payment recorded!');
@@ -711,7 +717,7 @@
         const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/services`, {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ service_id: serviceId, quantity: 1, staff_id: session.staff_id || 1 })
+          body: JSON.stringify({ service_id: serviceId, quantity: 1, staff_id: session.staffId || 1 })
         });
         if(res.ok) {
           alert('Service added!');

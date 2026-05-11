@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,8 +9,14 @@
   <script src="https://unpkg.com/feather-icons"></script>
   <link rel="stylesheet" href="css/globals.css">
   <style>
-    .transition-layout { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .cursor-pointer { cursor: pointer; }
+    .transition-layout {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .cursor-pointer {
+      cursor: pointer;
+    }
+
     /* Style cho stepper trong modal */
     .qty-stepper {
       display: flex;
@@ -19,12 +26,14 @@
       overflow: hidden;
       width: fit-content;
     }
+
     .qty-btn {
       border: none;
       background: var(--color-neutral-100);
       padding: 4px 12px;
       cursor: pointer;
     }
+
     .qty-input {
       width: 40px;
       text-align: center;
@@ -33,6 +42,7 @@
     }
   </style>
 </head>
+
 <body class="d-flex flex-column vh-100">
 
   <header class="topbar d-flex align-items-center justify-content-between px-4 w-100">
@@ -46,7 +56,8 @@
         <span id="topbar-role" style="display:none"></span>
       </div>
       <i data-feather="bell" class="text-muted"></i>
-      <button id="btn-logout" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1" style="height:30px">
+      <button id="btn-logout" class="btn btn-sm btn-outline-secondary d-flex align-items-center gap-1"
+        style="height:30px">
         <i data-feather="log-out" style="width:14px"></i> Logout
       </button>
     </div>
@@ -56,7 +67,8 @@
     <aside class="sidebar py-3 d-flex flex-column">
       <nav class="flex-grow-1">
         <a href="calendar.html" class="sidebar-item"><i data-feather="calendar" class="me-2"></i> Calendar</a>
-        <a href="new-reservation.html" class="sidebar-item active"><i data-feather="plus-square" class="me-2"></i> New Reservation</a>
+        <a href="new-reservation.html" class="sidebar-item active"><i data-feather="plus-square" class="me-2"></i> New
+          Reservation</a>
         <a href="rooms.html" class="sidebar-item"><i data-feather="layout" class="me-2"></i> Rooms</a>
         <a href="statistics.html" class="sidebar-item"><i data-feather="bar-chart-2" class="me-2"></i> Statistics</a>
       </nav>
@@ -91,26 +103,41 @@
 
             <div id="room-results-area" class="d-none">
               <div class="alert alert-warning text-small py-2 mb-3 d-none" id="early-checkin-warning" role="alert">
-                <i data-feather="zap" style="width: 14px; height: 14px;"></i> Check-in before 14:00 will incur an Early Check-in surcharge.
+                <i data-feather="zap" style="width: 14px; height: 14px;"></i> Check-in before 14:00 will incur an Early
+                Check-in surcharge.
               </div>
               <h3 class="text-subheading mb-3">Available Rooms</h3>
               <table class="table table-custom align-middle mb-5" id="available-rooms-table">
                 <thead>
-                  <tr><th>Room Type</th><th>Available</th><th>Price/Night</th><th>Action</th></tr>
+                  <tr>
+                    <th>Room Type</th>
+                    <th>Available</th>
+                    <th>Price/Night</th>
+                    <th>Action</th>
+                  </tr>
                 </thead>
                 <tbody>
                 </tbody>
               </table>
 
-              <h3 class="text-subheading mb-3">Selected Rooms <span class="badge bg-secondary rounded-pill" id="selected-count">0</span></h3>
+              <h3 class="text-subheading mb-3">Selected Rooms <span class="badge bg-secondary rounded-pill"
+                  id="selected-count">0</span></h3>
               <table class="table table-custom align-middle border" id="selected-rooms-table">
-                <thead><tr><th>Room Type</th><th>Qty</th><th>Subtotal</th><th></th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Room Type</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                  </tr>
+                </thead>
                 <tbody>
                 </tbody>
               </table>
-              
+
               <div class="d-flex justify-content-end mt-4 pt-3 border-top" id="booking-action-wrapper">
-                <button id="btn-proceed-booking" class="btn-primary-custom d-flex align-items-center gap-2" style="height: 40px;">
+                <button id="btn-proceed-booking" class="btn-primary-custom d-flex align-items-center gap-2"
+                  style="height: 40px;">
                   Proceed to Booking <i data-feather="arrow-right" style="width: 16px; height: 16px;"></i>
                 </button>
               </div>
@@ -127,18 +154,22 @@
               <div class="d-flex gap-2 mb-3 align-items-end">
                 <div class="flex-grow-1">
                   <label class="text-small fw-semibold mb-1">Phone Number *</label>
-                  <input type="text" id="guest-phone" class="form-control form-control-custom guest-input" placeholder="0901 234 567">
+                  <input type="text" id="guest-phone" class="form-control form-control-custom guest-input"
+                    placeholder="0901 234 567">
                 </div>
-                <button class="btn btn-outline-secondary" style="height: 36px;" id="btn-guest-lookup"><i data-feather="search" style="width: 16px;"></i></button>
+                <button class="btn btn-outline-secondary" style="height: 36px;" id="btn-guest-lookup"><i
+                    data-feather="search" style="width: 16px;"></i></button>
               </div>
               <div class="row g-3 mb-3">
                 <div class="col-md-6">
                   <label class="text-small fw-semibold mb-1">Full Name *</label>
-                  <input type="text" id="guest-name" class="form-control form-control-custom guest-input" placeholder="John Doe">
+                  <input type="text" id="guest-name" class="form-control form-control-custom guest-input"
+                    placeholder="John Doe">
                 </div>
                 <div class="col-md-6">
                   <label class="text-small fw-semibold mb-1">Email (Optional)</label>
-                  <input type="email" id="guest-email" class="form-control form-control-custom guest-input" placeholder="johndoe@example.com">
+                  <input type="email" id="guest-email" class="form-control form-control-custom guest-input"
+                    placeholder="johndoe@example.com">
                 </div>
                 <div class="col-md-6">
                   <label class="text-small fw-semibold mb-1">ID Number (Optional)</label>
@@ -154,18 +185,29 @@
             <div class="mb-4">
               <div class="d-flex justify-content-between align-items-center border-bottom pb-2 mb-3">
                 <h3 class="text-subheading mb-0">2. Additional Services</h3>
-                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceModal">+ Add Service</button>
+                <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#serviceModal">+
+                  Add Service</button>
               </div>
               <table class="table table-custom align-middle mb-0" id="selected-services-table">
-                <thead><tr><th>Service</th><th>Unit Price</th><th>Qty</th><th>Subtotal</th><th></th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Service</th>
+                    <th>Unit Price</th>
+                    <th>Qty</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                  </tr>
+                </thead>
                 <tbody>
-                  </tbody>
+                </tbody>
               </table>
             </div>
 
             <div class="bg-light p-3 rounded mb-4 border">
-              <div class="d-flex justify-content-between mb-1"><span class="text-muted">Room cost</span><span class="text-mono" id="summary-room-cost">0</span></div>
-              <div class="d-flex justify-content-between mb-1"><span class="text-muted">Services</span><span id="summary-service-cost" class="text-mono">0</span></div>
+              <div class="d-flex justify-content-between mb-1"><span class="text-muted">Room cost</span><span
+                  class="text-mono" id="summary-room-cost">0</span></div>
+              <div class="d-flex justify-content-between mb-1"><span class="text-muted">Services</span><span
+                  id="summary-service-cost" class="text-mono">0</span></div>
               <div class="d-flex justify-content-between align-items-center mt-2 pt-2 border-top">
                 <strong class="text-heading text-primary">TOTAL</strong>
                 <strong id="summary-total" class="text-display text-primary">0 VND</strong>
@@ -174,7 +216,8 @@
 
             <div class="d-flex gap-3 mt-4">
               <button class="btn btn-light flex-grow-1" style="height: 40px;">Cancel</button>
-              <button class="btn-primary-custom flex-grow-1" style="height: 40px;" id="btn-confirm-booking" disabled>Book Now →</button>
+              <button class="btn-primary-custom flex-grow-1" style="height: 40px;" id="btn-confirm-booking"
+                disabled>Book Now →</button>
             </div>
           </div>
         </div>
@@ -191,19 +234,10 @@
         </div>
         <div class="modal-body p-4">
           <div class="mb-4">
-            <div class="input-group">
-              <span class="input-group-text bg-white border-end-0"><i data-feather="search" style="width: 16px;"></i></span>
-              <input type="text" id="service-search-input" class="form-control form-control-custom border-start-0" placeholder="Search services (e.g. Airport, Spa)...">
-            </div>
-          </div>
-          
-          <h6 class="text-subheading mb-2">Results</h6>
-          <div class="table-responsive" style="max-height: 200px;">
-            <table class="table table-custom table-sm align-middle" id="services-result-table">
-              <thead><tr><th>Service</th><th>Category</th><th>Price</th><th></th></tr></thead>
-              <tbody>
-              </tbody>
-            </table>
+            <label class="text-small fw-semibold mb-2">Select Service</label>
+            <select id="service-select" class="form-select form-control-custom">
+              <option value="">-- Choose a service --</option>
+            </select>
           </div>
 
           <div class="mt-4 pt-3 border-top d-flex justify-content-between align-items-center">
@@ -215,7 +249,8 @@
                 <button class="qty-btn" onclick="updateQty(1)">+</button>
               </div>
             </div>
-            <button class="btn-primary-custom" style="height: 40px;" data-bs-dismiss="modal" onclick="confirmAddService()">Confirm & Add</button>
+            <button class="btn-primary-custom" style="height: 40px;" data-bs-dismiss="modal"
+              onclick="confirmAddService()">Confirm & Add</button>
           </div>
         </div>
       </div>
@@ -229,10 +264,10 @@
     // ─── Set default dates: hôm nay +1 (check-in 14:00) và +2 (check-out 12:00) ──
     (function setDefaultDates() {
       const pad = n => String(n).padStart(2, '0');
-      const fmt = (d, h, m) => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(h)}:${pad(m)}`;
+      const fmt = (d, h, m) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(h)}:${pad(m)}`;
       const ci = new Date(); ci.setDate(ci.getDate() + 1);
       const co = new Date(); co.setDate(co.getDate() + 2);
-      document.getElementById('checkin').value  = fmt(ci, 14, 0);
+      document.getElementById('checkin').value = fmt(ci, 14, 0);
       document.getElementById('checkout').value = fmt(co, 12, 0);
     })();
 
@@ -279,7 +314,7 @@
         const res = await fetch(`http://localhost:9000/api/rooms/available?checkin=${checkinDate}&checkout=${checkoutDate}`);
         if (!res.ok) throw new Error("Search failed");
         const data = await res.json();
-        
+
         tbody.innerHTML = '';
         if (data.length === 0) {
           tbody.innerHTML = '<tr><td colspan="4">No available rooms</td></tr>';
@@ -309,7 +344,7 @@
       }
     });
 
-    window.addRoom = function(typeId, typeName, price, maxAvail) {
+    window.addRoom = function (typeId, typeName, price, maxAvail) {
       const isBreakfast = document.getElementById(`breakfast-${typeId}`).checked;
       // Giá hiệu dụng: cộng breakfast nếu được chọn
       const effectivePrice = price + (isBreakfast ? BREAKFAST_PRICE : 0);
@@ -336,7 +371,7 @@
       renderSelectedRooms();
     };
 
-    window.removeRoom = function(index) {
+    window.removeRoom = function (index) {
       selectedRooms.splice(index, 1);
       renderSelectedRooms();
     };
@@ -417,7 +452,7 @@
       if (existingErr) existingErr.remove();
 
       try {
-        const checkin  = document.getElementById('checkin').value.replace('T', ' ') + ':00';
+        const checkin = document.getElementById('checkin').value.replace('T', ' ') + ':00';
         const checkout = document.getElementById('checkout').value.replace('T', ' ') + ':00';
         const idempotencyKey = crypto.randomUUID();
 
@@ -425,27 +460,27 @@
         const session = JSON.parse(sessionStorage.getItem('hbms_user') || '{}');
 
         const payload = {
-          hotel_id:        1,
-          customer_id:     currentGuestId,
-          check_in:        checkin,
-          check_out:       checkout,
+          hotel_id: 1,
+          customer_id: currentGuestId,
+          check_in: checkin,
+          check_out: checkout,
           idempotency_key: idempotencyKey,
-          staff_id:        session.staffId || 1,
+          staff_id: session.staffId || 1,
           rooms: selectedRooms.map(r => ({
-            room_type_id:         r.typeId,
-            quantity:             r.qty,
+            room_type_id: r.typeId,
+            quantity: r.qty,
             is_breakfast_included: r.isBreakfast
           })),
           services: selectedServicesList.map(s => ({
             service_id: s.id,
-            quantity:   s.qty
+            quantity: s.qty
           }))
         };
 
         const res = await fetch('http://localhost:9000/api/bookings/create', {
-          method:  'POST',
+          method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify(payload)
+          body: JSON.stringify(payload)
         });
 
         if (res.status === 201) {
@@ -459,7 +494,7 @@
         try {
           const errData = await res.json();
           errMsg = errData.detail || errMsg;
-        } catch (_) {}
+        } catch (_) { }
 
         // Hiển thị lỗi inline (không dùng alert)
         const errDiv = document.createElement('div');
@@ -480,38 +515,46 @@
     });
 
     // ─── Service Modal Logic ──────────────────────────────────────────────────
-    let searchTimeout;
-    document.getElementById('service-search-input').addEventListener('input', (e) => {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(async () => {
-        const q = e.target.value.trim();
-        if (!q) return;
-        try {
-          const res = await fetch(`http://localhost:9000/api/services/search?q=${encodeURIComponent(q)}&hotel_id=1`);
-          if (res.ok) {
-            const data = await res.json();
-            const tbody = document.querySelector('#services-result-table tbody');
-            tbody.innerHTML = '';
-            data.forEach(srv => {
-              tbody.innerHTML += `
-                <tr>
-                  <td>${srv.service_name}</td><td>${srv.category}</td><td class="text-mono">${formatMoney(srv.price)}</td>
-                  <td><button class="btn btn-sm btn-primary py-0" onclick="selectService(${srv.service_id}, '${srv.service_name}', ${srv.price})">Select</button></td>
-                </tr>
-              `;
+    const serviceModal = document.getElementById('serviceModal');
+    let allServices = [];
+
+    serviceModal.addEventListener('show.bs.modal', async () => {
+      const select = document.getElementById('service-select');
+      select.innerHTML = '<option value="">Loading services...</option>';
+
+      try {
+        const res = await fetch(`http://localhost:9000/api/services/search?q= &hotel_id=1`);
+        if (res.ok) {
+          allServices = await res.json();
+
+          // Group by category
+          const grouped = allServices.reduce((acc, srv) => {
+            if (!acc[srv.category]) acc[srv.category] = [];
+            acc[srv.category].push(srv);
+            return acc;
+          }, {});
+
+          select.innerHTML = '<option value="">-- Select a service --</option>';
+          for (const category in grouped) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = category;
+
+            grouped[category].forEach(srv => {
+              const option = document.createElement('option');
+              option.value = srv.service_id;
+              option.textContent = `${srv.service_name} (${formatMoney(srv.price)} VND)`;
+              optgroup.appendChild(option);
             });
+            select.appendChild(optgroup);
           }
-        } catch (err) { console.error(err); }
-      }, 300);
+        }
+      } catch (err) {
+        console.error(err);
+        select.innerHTML = '<option value="">Error loading services</option>';
+      }
     });
 
-    let currentServiceSelection = null;
-    window.selectService = function(id, name, price) {
-      currentServiceSelection = { id, name, price };
-      alert(`Selected: ${name}`);
-    };
-
-    window.updateQty = function(val) {
+    window.updateQty = function (val) {
       const input = document.getElementById('modal-qty');
       let current = parseInt(input.value);
       if (current + val >= 1) input.value = current + val;
@@ -519,26 +562,35 @@
 
     let selectedServicesList = [];
 
-    window.confirmAddService = function() {
-      if (!currentServiceSelection) return;
+    window.confirmAddService = function () {
+      const select = document.getElementById('service-select');
+      const serviceId = parseInt(select.value);
+      if (!serviceId) {
+        alert("Please select a service");
+        return;
+      }
+
+      const service = allServices.find(s => s.service_id === serviceId);
+      if (!service) return;
+
       const qty = parseInt(document.getElementById('modal-qty').value);
-      
-      const existing = selectedServicesList.find(s => s.id === currentServiceSelection.id);
+
+      const existing = selectedServicesList.find(s => s.id === service.service_id);
       if (existing) {
         existing.qty += qty;
       } else {
         selectedServicesList.push({
-          id: currentServiceSelection.id,
-          name: currentServiceSelection.name,
-          price: currentServiceSelection.price,
+          id: service.service_id,
+          name: service.service_name,
+          price: service.price,
           qty: qty
         });
       }
-      
-      currentServiceSelection = null;
-      document.getElementById('service-search-input').value = '';
-      document.querySelector('#services-result-table tbody').innerHTML = '';
-      
+
+      // Reset modal
+      select.value = "";
+      document.getElementById('modal-qty').value = "1";
+
       // Close modal
       const modal = bootstrap.Modal.getInstance(document.getElementById('serviceModal'));
       if (modal) modal.hide();
@@ -546,7 +598,7 @@
       renderSelectedServices();
     };
 
-    window.removeService = function(index) {
+    window.removeService = function (index) {
       selectedServicesList.splice(index, 1);
       renderSelectedServices();
     };
@@ -572,18 +624,19 @@
     }
 
     // ─── Auth Guard
-    (function() {
+    (function () {
       const s = JSON.parse(sessionStorage.getItem('hbms_user') || 'null');
       if (!s) { window.location.href = 'index.html'; return; }
       document.getElementById('topbar-name').textContent = s.name;
-      if (s.role === 'admin' || s.role === 'Admin') { 
-        const b = document.getElementById('topbar-role'); b.textContent='Admin'; b.className='badge bg-warning text-dark ms-1'; b.style.display='inline'; 
+      if (s.role === 'admin' || s.role === 'Admin') {
+        const b = document.getElementById('topbar-role'); b.textContent = 'Admin'; b.className = 'badge bg-warning text-dark ms-1'; b.style.display = 'inline';
       } else {
         const statsLink = document.querySelector('a[href="statistics.html"]');
         if (statsLink) statsLink.remove();
       }
-      document.getElementById('btn-logout').addEventListener('click', () => { sessionStorage.removeItem('hbms_user'); window.location.href='index.html'; });
+      document.getElementById('btn-logout').addEventListener('click', () => { sessionStorage.removeItem('hbms_user'); window.location.href = 'index.html'; });
     })();
   </script>
 </body>
+
 </html>

@@ -1,8 +1,0 @@
-{
-    "markdown.styles": [
-        ".vscode/styles/gruvbox.css",
-        ".vscode/styles/gruvbox-dark.css"
-    ],
-    "java.compile.nullAnalysis.mode": "automatic",
-    "liveServer.settings.port": 5534
-}

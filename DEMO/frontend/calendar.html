@@ -29,10 +29,11 @@
 
     .block-container {
       position: absolute;
-      left: 140px;
+      left: 0;
       right: 0;
       top: 0;
       bottom: 0;
+      overflow: hidden;
     }
 
     /* Hover highlight: booking cùng id sáng lên */
@@ -174,7 +175,10 @@
         d.setDate(start.getDate() + i);
         let dayName = d.toLocaleDateString('en-GB', { weekday: 'short' });
         let dayNum = d.getDate().toString().padStart(2, '0');
-        header.innerHTML += `<div class="cal-header-cell flex-fill"><span class="text-small">${dayName}</span><strong>${dayNum}</strong></div>`;
+        let isWeekend = (d.getDay() === 0 || d.getDay() === 6);
+        let weekendStyle = isWeekend ? ' style="background-color: rgba(245, 158, 11, 0.15);"' : '';
+        let weekendText = isWeekend ? ' style="color: #d97706;"' : '';
+        header.innerHTML += `<div class="cal-header-cell flex-fill"${weekendStyle}><span class="text-small"${weekendText}>${dayName}</span><strong${weekendText}>${dayNum}</strong></div>`;
       }
     }
 
@@ -202,22 +206,12 @@
 
         if (item.booking_id) {
           const checkIn = new Date(item.check_in);
-          checkIn.setHours(0, 0, 0, 0);
           const checkOut = new Date(item.check_out);
-          checkOut.setHours(0, 0, 0, 0);
 
           let startOffset = (checkIn - startDate) / (1000 * 60 * 60 * 24);
           let length = (checkOut - checkIn) / (1000 * 60 * 60 * 24);
 
-          if (startOffset < 0) {
-            length += startOffset;
-            startOffset = 0;
-          }
-          if (startOffset + length > TOTAL_DAYS) {
-            length = TOTAL_DAYS - startOffset;
-          }
-
-          if (length > 0 && startOffset < TOTAL_DAYS) {
+          if (startOffset < TOTAL_DAYS && startOffset + length > 0) {
             let inits = item.customer_name ? item.customer_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'G';
             bookings.push({
               id: item.booking_id,
@@ -354,11 +348,15 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ booking_id: parseInt(bid), old_room_id: parseInt(origRoom), room_id: parseInt(newRoomId), staff_id: session.staffId })
               });
-              if (!res.ok) throw new Error("Pre-assign failed");
+              const data = await res.json();
+              if (!res.ok || !data.success) {
+                throw new Error(data.error || "Pre-assign failed");
+              }
               fetchCalendar();
             } catch (e) {
               console.error(e);
-              alert("Error moving room!");
+              alert(e.message || "Error moving room!");
+              fetchCalendar(); // refresh to snap back visually
             }
           }
         } else {

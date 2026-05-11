@@ -590,6 +590,13 @@ BEGIN
         WHERE ra.booking_id = p_booking_id
           AND ra.is_cancelled = FALSE
     );
+
+    -- Giải phóng phòng cho các ngày tiếp theo nếu khách checkout sớm
+    UPDATE room_assignments
+    SET check_out = NOW()
+    WHERE booking_id = p_booking_id
+      AND is_cancelled = FALSE
+      AND check_out > NOW();
 END;
 $$;
 

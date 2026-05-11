@@ -8,6 +8,13 @@ class LoginRequest(BaseModel):
 class CustomerLookupRequest(BaseModel):
     phone_number: str
 
+class CustomerCreateRequest(BaseModel):
+    full_name: str
+    phone_number: str
+    identity_card: Optional[str] = None
+    email: Optional[str] = None
+    date_of_birth: Optional[str] = None
+
 class BeginBookingRequest(BaseModel):
     hotel_id: int
     customer_id: int

@@ -365,6 +365,18 @@ AFTER INSERT OR UPDATE OR DELETE ON service_usage
 FOR EACH ROW
 EXECUTE FUNCTION sync_total_amount();
 
+DROP TRIGGER IF EXISTS trg_sync_total_amount_bd ON booking_details;
+CREATE TRIGGER trg_sync_total_amount_bd
+AFTER INSERT OR UPDATE OR DELETE ON booking_details
+FOR EACH ROW
+EXECUTE FUNCTION sync_total_amount();
+
+DROP TRIGGER IF EXISTS trg_sync_total_amount_bs ON booking_surcharges;
+CREATE TRIGGER trg_sync_total_amount_bs
+AFTER INSERT OR UPDATE OR DELETE ON booking_surcharges
+FOR EACH ROW
+EXECUTE FUNCTION sync_total_amount();
+
 -- =============================================================
 -- Phase 3: Reservation Procedures & Time Surcharges
 -- =============================================================
@@ -494,8 +506,8 @@ BEGIN
     WHERE id = p_booking_id
     FOR UPDATE;
 
-    IF v_booking_status IS DISTINCT FROM 'Active' THEN
-        RAISE EXCEPTION 'BOOKING_STATE_INVALID: Booking % không ở trạng thái Active', p_booking_id
+    IF v_booking_status NOT IN ('Active', 'Checked-in') THEN
+        RAISE EXCEPTION 'BOOKING_STATE_INVALID: Booking % không ở trạng thái Active hoặc Checked-in (hiện tại: %)', p_booking_id, v_booking_status
         USING ERRCODE = 'P0011';
     END IF;
 
@@ -816,8 +828,14 @@ BEGIN
         v_cur_date := v_cur_date + 1;
     END LOOP;
 
-    INSERT INTO booking_details (booking_id, room_type_id, quantity, agreed_price, is_breakfast_included)
-    VALUES (p_booking_id, p_room_type_id, p_quantity, 0, p_is_breakfast_included);
+    DECLARE
+        v_base_price DECIMAL(10, 2);
+    BEGIN
+        SELECT base_price INTO v_base_price FROM room_types WHERE id = p_room_type_id;
+
+        INSERT INTO booking_details (booking_id, room_type_id, quantity, agreed_price, is_breakfast_included)
+        VALUES (p_booking_id, p_room_type_id, p_quantity, v_base_price, p_is_breakfast_included);
+    END;
 END;
 $$;
 
@@ -1022,7 +1040,7 @@ BEGIN
           AND ra.is_cancelled = FALSE;
 
         FOR r_booking IN
-            SELECT DISTINCT b.id AS booking_id, b.check_in, b.check_out
+            SELECT b.id AS booking_id, b.check_in, b.check_out, bd.quantity
             FROM bookings b
             JOIN booking_details bd
               ON bd.booking_id   = b.id
@@ -1031,33 +1049,35 @@ BEGIN
               AND b.status   = 'Active'
             ORDER BY b.check_in
         LOOP
-            v_inserted := FALSE;
+            FOR i IN 1..r_booking.quantity LOOP
+                v_inserted := FALSE;
 
-            FOR r_room IN
-                SELECT r.id AS room_id
-                FROM rooms r
-                WHERE r.room_type_id = r_type.room_type_id
-                  AND r.hotel_id     = p_hotel_id
-                  AND NOT EXISTS (
-                      SELECT 1 FROM room_assignments ra2
-                      WHERE ra2.room_id       = r.id
-                        AND ra2.is_cancelled  = FALSE
-                        AND tsrange(ra2.check_in, ra2.check_out, '[)')
-                         && tsrange(r_booking.check_in, r_booking.check_out, '[)')
-                  )
-                ORDER BY r.room_number
-                LIMIT 1
-            LOOP
-                INSERT INTO room_assignments (booking_id, room_id, check_in, check_out, is_cancelled)
-                VALUES (r_booking.booking_id, r_room.room_id, r_booking.check_in, r_booking.check_out, FALSE);
-                v_inserted := TRUE;
-                EXIT;
+                FOR r_room IN
+                    SELECT r.id AS room_id
+                    FROM rooms r
+                    WHERE r.room_type_id = r_type.room_type_id
+                      AND r.hotel_id     = p_hotel_id
+                      AND NOT EXISTS (
+                          SELECT 1 FROM room_assignments ra2
+                          WHERE ra2.room_id       = r.id
+                            AND ra2.is_cancelled  = FALSE
+                            AND tsrange(ra2.check_in, ra2.check_out, '[)')
+                             && tsrange(r_booking.check_in, r_booking.check_out, '[)')
+                      )
+                    ORDER BY r.room_number
+                    LIMIT 1
+                LOOP
+                    INSERT INTO room_assignments (booking_id, room_id, check_in, check_out, is_cancelled)
+                    VALUES (r_booking.booking_id, r_room.room_id, r_booking.check_in, r_booking.check_out, FALSE);
+                    v_inserted := TRUE;
+                    EXIT;
+                END LOOP;
+
+                IF NOT v_inserted THEN
+                    RAISE WARNING 'TETRISROOM: Không tìm được phòng trống cho booking % (check_in: %)',
+                        r_booking.booking_id, r_booking.check_in;
+                END IF;
             END LOOP;
-
-            IF NOT v_inserted THEN
-                RAISE WARNING 'TETRISROOM: Không tìm được phòng trống cho booking % (check_in: %)',
-                    r_booking.booking_id, r_booking.check_in;
-            END IF;
         END LOOP;
     END LOOP;
 END;

@@ -167,16 +167,16 @@
                     placeholder="John Doe">
                 </div>
                 <div class="col-md-6">
-                  <label class="text-small fw-semibold mb-1">Email (Optional)</label>
+                  <label class="text-small fw-semibold mb-1">Email</label>
                   <input type="email" id="guest-email" class="form-control form-control-custom guest-input"
                     placeholder="johndoe@example.com">
                 </div>
                 <div class="col-md-6">
-                  <label class="text-small fw-semibold mb-1">ID Number (Optional)</label>
+                  <label class="text-small fw-semibold mb-1">ID Number</label>
                   <input type="text" id="guest-id-number" class="form-control form-control-custom guest-input">
                 </div>
                 <div class="col-md-6">
-                  <label class="text-small fw-semibold mb-1">Date of Birth (Optional)</label>
+                  <label class="text-small fw-semibold mb-1">Date of Birth *</label>
                   <input type="date" id="guest-dob" class="form-control form-control-custom guest-input">
                 </div>
               </div>
@@ -421,11 +421,16 @@
           const guest = await res.json();
           document.getElementById('guest-name').value = guest.full_name || '';
           document.getElementById('guest-id-number').value = guest.identity_card || '';
+          document.getElementById('guest-email').value = guest.email || '';
+          if (guest.date_of_birth) {
+            document.getElementById('guest-dob').value = guest.date_of_birth.split('T')[0];
+          }
           currentGuestId = guest.customer_id;
           validateForm();
         } else {
-          alert("Guest not found in the system (Backend does not support creating new guests yet)");
+          // Khách không tồn tại, cho phép tạo mới
           currentGuestId = null;
+          validateForm();
         }
       } catch (err) {
         console.error(err);
@@ -437,13 +442,13 @@
     function validateForm() {
       const name = document.getElementById('guest-name').value.trim();
       const phone = document.getElementById('guest-phone').value.trim();
-      let isValid = name.length > 0 && phone.match(/^\d{9,11}$/) && currentGuestId !== null;
+      const dob = document.getElementById('guest-dob').value;
+      let isValid = name.length > 0 && phone.match(/^\d{9,11}$/) && dob !== "";
       btnConfirm.disabled = !isValid;
     }
     document.querySelectorAll('.guest-input').forEach(input => input.addEventListener('input', validateForm));
 
     btnConfirm.addEventListener('click', async () => {
-      if (!currentGuestId) return;
       btnConfirm.disabled = true;
       btnConfirm.innerText = "Processing...";
 
@@ -452,6 +457,42 @@
       if (existingErr) existingErr.remove();
 
       try {
+        const dobStr = document.getElementById('guest-dob').value;
+        if (!dobStr) throw new Error("Date of Birth is required.");
+        const dob = new Date(dobStr);
+        const today = new Date();
+        let ageExact = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) {
+            ageExact--;
+        }
+        if (ageExact < 18) {
+          console.error("Age validation failed: Customer is under 18 years old. Age:", ageExact);
+          throw new Error("Customer must be at least 18 years old.");
+        }
+
+        if (!currentGuestId) {
+          // Tạo khách hàng mới
+          const customerPayload = {
+            full_name: document.getElementById('guest-name').value.trim(),
+            phone_number: document.getElementById('guest-phone').value.trim(),
+            identity_card: document.getElementById('guest-id-number').value.trim() || null,
+            email: document.getElementById('guest-email').value.trim() || null,
+            date_of_birth: dobStr
+          };
+          const custRes = await fetch('http://localhost:9000/api/customers', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(customerPayload)
+          });
+          if (!custRes.ok) {
+            const errData = await custRes.json();
+            throw new Error(errData.detail || "Failed to create new customer");
+          }
+          const newCust = await custRes.json();
+          currentGuestId = newCust.customer_id;
+        }
+
         const checkin = document.getElementById('checkin').value.replace('T', ' ') + ':00';
         const checkout = document.getElementById('checkout').value.replace('T', ' ') + ':00';
         const idempotencyKey = crypto.randomUUID();
@@ -507,10 +548,15 @@
         btnConfirm.innerText = "Book Now →";
 
       } catch (err) {
-        console.error(err);
+        console.error("Booking process error:", err.message);
         btnConfirm.disabled = false;
         btnConfirm.innerText = "Book Now →";
-        alert("Connection error: " + err.message);
+        
+        const errDiv = document.createElement('div');
+        errDiv.id = 'booking-error-msg';
+        errDiv.className = 'alert alert-danger text-small mt-3 mb-0 py-2';
+        errDiv.innerHTML = `<strong>Error:</strong> ${err.message}`;
+        btnConfirm.parentElement.insertAdjacentElement('afterend', errDiv);
       }
     });
 

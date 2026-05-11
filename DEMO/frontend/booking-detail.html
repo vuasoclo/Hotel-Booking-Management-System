@@ -596,7 +596,11 @@
           loadBookingDetails();
         } else {
           const err = await res.text();
-          alert('Failed to check-out: ' + err);
+          if (err.includes("room_assignments_check")) {
+            alert('Lỗi Check-out: Không thể Check-out sớm hơn thời gian Check-in của phòng. Vui lòng kiểm tra lại giờ vào!');
+          } else {
+            alert('Failed to check-out: ' + err);
+          }
         }
       } catch(err) { console.error(err); alert('Network error during Check-out.'); }
     }

@@ -46,9 +46,3 @@ Nếu bạn muốn **xóa sạch toàn bộ dữ liệu hiện tại** và nạp
 ```bash
 docker-compose down -v
 ```
-
-## 📝 Lưu ý phát triển (Development)
-- Mã nguồn của `backend/` và `frontend/` được liên kết trực tiếp vào trong container qua Docker Volumes. Nghĩa là khi bạn chỉnh sửa file bên ngoài, code bên trong container cũng cập nhật:
-  - **Backend**: FastAPI chạy ở chế độ `--reload` nên sẽ tự động khởi động lại mỗi khi có thay đổi code.
-  - **Frontend**: Bạn chỉ cần f5 / làm mới trình duyệt để thấy thay đổi mới nhất.
-- Cấu hình môi trường cho Backend nằm tại file `backend/.env`.

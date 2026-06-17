@@ -1,18 +1,23 @@
 services:
   db:
     image: postgres:15
-    container_name: hbms_db
     restart: always
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: hbms
     ports:
-      - "5432:5432"
+      - "6000:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./database/HBMS_full_deployment.sql:/docker-entrypoint-initdb.d/01_init.sql
-      - ./database/HBMS_mock_data.sql:/docker-entrypoint-initdb.d/02_mock.sql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./database/functions.sql:/docker-entrypoint-initdb.d/02_functions.sql
+      - ./database/triggers.sql:/docker-entrypoint-initdb.d/03_triggers.sql
+      - ./database/booking_procedures.sql:/docker-entrypoint-initdb.d/04_booking_procedures.sql
+      - ./database/invoice_procedures.sql:/docker-entrypoint-initdb.d/05_invoice_procedures.sql
+      - ./database/views.sql:/docker-entrypoint-initdb.d/06_views.sql
+      - ./database/utilities.sql:/docker-entrypoint-initdb.d/07_utilities.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/08_seed.sql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
@@ -21,7 +26,6 @@ services:
 
   backend:
     build: ./backend
-    container_name: hbms_backend
     depends_on:
       db:
         condition: service_healthy
@@ -40,7 +44,6 @@ services:
 
   frontend:
     image: nginx:alpine
-    container_name: hbms_frontend
     ports:
       - "3000:80"
     volumes:

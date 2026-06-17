@@ -68,6 +68,7 @@ BEGIN
     WHERE bd.booking_id = p_booking_id;
 END;
 $$ LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION search_available_rooms(
     p_start_date DATE,
     p_end_date   DATE

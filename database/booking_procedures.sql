@@ -48,6 +48,7 @@ BEGIN
     WHERE id = p_booking_id;
 END;
 $$;
+
 CREATE OR REPLACE PROCEDURE check_out_booking(
     p_booking_id INT,
     p_staff_id INT
@@ -106,6 +107,7 @@ BEGIN
       AND check_out > NOW();
 END;
 $$;
+
 CREATE OR REPLACE PROCEDURE housekeeping_complete(
     p_room_id INT,
     p_staff_id INT
@@ -159,6 +161,7 @@ BEGIN
     RETURN v_booking_id;
 END;
 $$;
+
 CREATE OR REPLACE PROCEDURE add_room_detail_to_booking(
     p_booking_id            INT,
     p_room_type_id          INT,
@@ -269,6 +272,7 @@ BEGIN
     VALUES (p_booking_id, p_to_room_id, v_check_in, v_check_out, FALSE);
 END;
 $$;
+
 CREATE OR REPLACE VIEW v_calendar AS
 SELECT
     ra.id                   AS assignment_id,
@@ -293,6 +297,7 @@ JOIN room_types rt ON rt.id = r.room_type_id
 LEFT JOIN room_assignments ra ON ra.room_id = r.id AND ra.is_cancelled = FALSE
 LEFT JOIN bookings b ON b.id = ra.booking_id AND b.status IN ('Active', 'Checked-in')
 LEFT JOIN customers c ON c.id = b.customer_id;
+
 CREATE OR REPLACE PROCEDURE tetrisroom_defrag(
     p_hotel_id INT,
     p_staff_id INT

@@ -27,6 +27,7 @@ BEGIN
     WHERE invoices.status <> 'Void';
 END;
 $$;
+
 CREATE OR REPLACE PROCEDURE record_payment(
     p_booking_id INT,
     p_amount     DECIMAL(10,2),

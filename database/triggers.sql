@@ -5,16 +5,19 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
 DROP TRIGGER IF EXISTS trg_rooms_updated ON rooms;
 CREATE TRIGGER trg_rooms_updated
 BEFORE UPDATE ON rooms
 FOR EACH ROW
 EXECUTE FUNCTION touch_updated_at();
+
 DROP TRIGGER IF EXISTS trg_bookings_updated ON bookings;
 CREATE TRIGGER trg_bookings_updated
 BEFORE UPDATE ON bookings
 FOR EACH ROW
 EXECUTE FUNCTION touch_updated_at();
+
 CREATE OR REPLACE FUNCTION set_agreed_price()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -26,11 +29,13 @@ BEGIN
     RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
+
 DROP TRIGGER IF EXISTS trg_snapshot_price ON booking_details;
 CREATE TRIGGER trg_snapshot_price
 BEFORE INSERT ON booking_details
 FOR EACH ROW
 EXECUTE FUNCTION set_agreed_price();
+
 CREATE OR REPLACE FUNCTION release_inventory_on_cancel()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -96,11 +101,13 @@ CREATE TRIGGER trg_sync_total_amount
 AFTER INSERT OR UPDATE OR DELETE ON service_usage
 FOR EACH ROW
 EXECUTE FUNCTION sync_total_amount();
+
 DROP TRIGGER IF EXISTS trg_sync_total_amount_bd ON booking_details;
 CREATE TRIGGER trg_sync_total_amount_bd
 AFTER INSERT OR UPDATE OR DELETE ON booking_details
 FOR EACH ROW
 EXECUTE FUNCTION sync_total_amount();
+
 DROP TRIGGER IF EXISTS trg_sync_total_amount_bs ON booking_surcharges;
 CREATE TRIGGER trg_sync_total_amount_bs
 AFTER INSERT OR UPDATE OR DELETE ON booking_surcharges

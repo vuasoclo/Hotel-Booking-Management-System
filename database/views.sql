@@ -11,6 +11,7 @@ SELECT
     END AS occupancy_rate
 FROM room_type_inventory rti
 JOIN room_types rt ON rt.id = rti.room_type_id;
+
 CREATE OR REPLACE VIEW v_monthly_revenue AS
 WITH booking_base AS (
     SELECT
@@ -58,6 +59,7 @@ LEFT JOIN room_sum rs ON rs.booking_id = bb.id
 LEFT JOIN surcharge_sum ss ON ss.booking_id = bb.id
 LEFT JOIN service_sum svs ON svs.booking_id = bb.id
 GROUP BY bb.hotel_id, bb.report_month;
+
 CREATE OR REPLACE VIEW v_booking_summary AS
 SELECT
     b.id AS booking_id,
@@ -72,6 +74,7 @@ JOIN customers c ON c.id = b.customer_id
 JOIN booking_details bd ON bd.booking_id = b.id
 JOIN room_types rt ON rt.id = bd.room_type_id
 GROUP BY b.id, c.full_name, b.check_in, b.check_out, b.total_amount, b.amount_paid;
+
 CREATE OR REPLACE VIEW v_room_status_now AS
 SELECT
     r.hotel_id,

@@ -273,31 +273,6 @@ BEGIN
 END;
 $$;
 
-CREATE OR REPLACE VIEW v_calendar AS
-SELECT
-    ra.id                   AS assignment_id,
-    r.hotel_id,
-    rt.id                   AS room_type_id,
-    rt.type_name,
-    r.id                    AS room_id,
-    r.room_number,
-    r.status                AS room_status,
-    b.id                    AS booking_id,
-    b.status                AS booking_status,
-    c.full_name             AS customer_name,
-    c.phone_number          AS customer_phone,
-    ra.check_in,
-    ra.check_out,
-    b.total_amount,
-    b.amount_paid,
-    (b.total_amount - b.amount_paid)    AS balance,
-    b.updated_at            AS booking_updated_at
-FROM rooms r
-JOIN room_types rt ON rt.id = r.room_type_id
-LEFT JOIN room_assignments ra ON ra.room_id = r.id AND ra.is_cancelled = FALSE
-LEFT JOIN bookings b ON b.id = ra.booking_id AND b.status IN ('Active', 'Checked-in')
-LEFT JOIN customers c ON c.id = b.customer_id;
-
 CREATE OR REPLACE PROCEDURE tetrisroom_defrag(
     p_hotel_id INT,
     p_staff_id INT

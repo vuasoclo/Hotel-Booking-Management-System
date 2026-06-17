@@ -16,11 +16,9 @@ DB_CONFIG = {
 }
 
 def get_conn():
-    """Tạo kết nối mới tới PostgreSQL, trả về dict-based cursor."""
     return psycopg2.connect(**DB_CONFIG, cursor_factory=RealDictCursor)
 
 def execute(sql: str, params: tuple = (), fetch: str = "none"):
-    """Utility thực thi SQL và trả về kết quả."""
     conn = get_conn()
     try:
         with conn.cursor() as cur:
@@ -40,12 +38,6 @@ def execute(sql: str, params: tuple = (), fetch: str = "none"):
         conn.close()
 
 def execute_in_transaction(fn: Callable[[Any], Any]):
-    """
-    Chạy một callable fn(cur) trong 1 connection/transaction duy nhất.
-    Nếu fn raise bất kỳ Exception nào → ROLLBACK toàn bộ.
-    Nếu thành công → COMMIT.
-    fn nhận psycopg2 cursor (RealDictCursor) và có thể raise HTTPException để abort.
-    """
     conn = get_conn()
     try:
         with conn.cursor() as cur:

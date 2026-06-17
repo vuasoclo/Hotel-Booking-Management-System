@@ -6,10 +6,6 @@ router = APIRouter(prefix="/api/calendar", tags=["Calendar"])
 
 @router.get("")
 def get_calendar(start_date: str, end_date: str):
-    """
-    Lấy dữ liệu cho Gantt calendar.
-    Trả về TẤT CẢ phòng (LEFT JOIN) — phòng không có booking vẫn xuất hiện.
-    """
     result = execute(
         """
         SELECT
@@ -46,14 +42,12 @@ def get_calendar(start_date: str, end_date: str):
 
 @router.post("/defragment")
 def defragment(hotel_id: int, staff_id: int):
-    """Gọi procedure tối ưu phân bổ phòng (Tetris algorithm)."""
     execute("CALL tetrisroom_defrag(%s, %s)", (hotel_id, staff_id))
     execute("DELETE FROM room_assignments WHERE is_cancelled = TRUE")
     return {"success": True, "message": "Phân bổ phòng đã được tối ưu."}
 
 @router.post("/pre-assign")
 def pre_assign(body: PreAssignRequest):
-    """Gán tay một booking vào phòng cụ thể (kéo thả trên Calendar)."""
     try:
         execute("CALL pre_assign_room(%s, %s, %s, %s)", (body.booking_id, body.old_room_id, body.room_id, body.staff_id))
         execute("DELETE FROM room_assignments WHERE is_cancelled = TRUE")

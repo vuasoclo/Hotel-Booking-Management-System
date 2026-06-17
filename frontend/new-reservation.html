@@ -17,7 +17,7 @@
       cursor: pointer;
     }
 
-    /* Style cho stepper trong modal */
+    
     .qty-stepper {
       display: flex;
       align-items: center;
@@ -261,7 +261,7 @@
   <script>
     feather.replace();
 
-    // ─── Set default dates: hôm nay +1 (check-in 14:00) và +2 (check-out 12:00) ──
+    
     (function setDefaultDates() {
       const pad = n => String(n).padStart(2, '0');
       const fmt = (d, h, m) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(h)}:${pad(m)}`;
@@ -271,7 +271,7 @@
       document.getElementById('checkout').value = fmt(co, 12, 0);
     })();
 
-    // ─── Booking State ────────────────────────────────────────────────────────────
+    
     const BREAKFAST_PRICE = 150000;
     let selectedRooms = [];
     let selectedServices = [];
@@ -289,7 +289,7 @@
       document.getElementById('summary-total').innerText = formatMoney(roomTotalCost + serviceTotalCost) + " VND";
     }
 
-    // ─── Step 1: Search Rooms ─────────────────────────────────────────────────
+    
     document.getElementById('btn-search').addEventListener('click', async () => {
       const checkin = document.getElementById('checkin').value;
       const checkout = document.getElementById('checkout').value;
@@ -299,7 +299,7 @@
       const tbody = document.querySelector('#available-rooms-table tbody');
       tbody.innerHTML = '<tr><td colspan="4">Loading...</td></tr>';
 
-      // Early checkin warning logic
+      
       const checkinHour = new Date(checkin).getHours();
       const warningAlert = document.getElementById('early-checkin-warning');
       if (checkinHour < 14) {
@@ -346,10 +346,10 @@
 
     window.addRoom = function (typeId, typeName, price, maxAvail) {
       const isBreakfast = document.getElementById(`breakfast-${typeId}`).checked;
-      // Giá hiệu dụng: cộng breakfast nếu được chọn
+      
       const effectivePrice = price + (isBreakfast ? BREAKFAST_PRICE : 0);
 
-      // Lỗi #2 FIX: tổng qty của TẤT CẢ variants cùng typeId (breakfast và no-breakfast)
+      
       const totalQtyForType = selectedRooms
         .filter(r => r.typeId === typeId)
         .reduce((sum, r) => sum + r.qty, 0);
@@ -359,11 +359,11 @@
         return;
       }
 
-      // Tìm entry hiện có cùng typeId và cùng isBreakfast để increment
+      
       const existing = selectedRooms.find(r => r.typeId === typeId && r.isBreakfast === isBreakfast);
       if (existing) {
         existing.qty++;
-        existing.subtotal += effectivePrice; // dùng effectivePrice (có thể khác price ban đầu)
+        existing.subtotal += effectivePrice; 
       } else {
         selectedRooms.push({ typeId, typeName, price: effectivePrice, qty: 1, subtotal: effectivePrice, isBreakfast, maxAvail });
       }
@@ -407,7 +407,7 @@
       document.getElementById('booking-action-wrapper').classList.add('d-none');
     });
 
-    // ─── Step 1b: Guest Lookup ────────────────────────────────────────────────
+    
     document.getElementById('btn-guest-lookup').addEventListener('click', async () => {
       const phone = document.getElementById('guest-phone').value.trim();
       if (!phone) return;
@@ -428,7 +428,7 @@
           currentGuestId = guest.customer_id;
           validateForm();
         } else {
-          // Khách không tồn tại, cho phép tạo mới
+          
           currentGuestId = null;
           validateForm();
         }
@@ -437,7 +437,7 @@
       }
     });
 
-    // ─── Step 2: Book Now Flow ────────────────────────────────────────────────
+    
     const btnConfirm = document.getElementById('btn-confirm-booking');
     function validateForm() {
       const name = document.getElementById('guest-name').value.trim();
@@ -452,7 +452,7 @@
       btnConfirm.disabled = true;
       btnConfirm.innerText = "Processing...";
 
-      // Xoá thông báo lỗi cũ nếu có
+      
       const existingErr = document.getElementById('booking-error-msg');
       if (existingErr) existingErr.remove();
 
@@ -472,7 +472,7 @@
         }
 
         if (!currentGuestId) {
-          // Tạo khách hàng mới
+          
           const customerPayload = {
             full_name: document.getElementById('guest-name').value.trim(),
             phone_number: document.getElementById('guest-phone').value.trim(),
@@ -497,7 +497,7 @@
         const checkout = document.getElementById('checkout').value.replace('T', ' ') + ':00';
         const idempotencyKey = crypto.randomUUID();
 
-        // Lấy staff_id từ session (fallback = 1)
+        
         const session = JSON.parse(sessionStorage.getItem('hbms_user') || '{}');
 
         const payload = {
@@ -525,19 +525,19 @@
         });
 
         if (res.status === 201) {
-          // Thành công → redirect calendar
+          
           window.location.href = 'calendar.html';
           return;
         }
 
-        // Lỗi có body JSON
+        
         let errMsg = 'Booking failed. Please try again.';
         try {
           const errData = await res.json();
           errMsg = errData.detail || errMsg;
         } catch (_) { }
 
-        // Hiển thị lỗi inline (không dùng alert)
+        
         const errDiv = document.createElement('div');
         errDiv.id = 'booking-error-msg';
         errDiv.className = 'alert alert-danger text-small mt-3 mb-0 py-2';
@@ -560,7 +560,7 @@
       }
     });
 
-    // ─── Service Modal Logic ──────────────────────────────────────────────────
+    
     const serviceModal = document.getElementById('serviceModal');
     let allServices = [];
 
@@ -573,7 +573,7 @@
         if (res.ok) {
           allServices = await res.json();
 
-          // Group by category
+          
           const grouped = allServices.reduce((acc, srv) => {
             if (!acc[srv.category]) acc[srv.category] = [];
             acc[srv.category].push(srv);
@@ -633,11 +633,11 @@
         });
       }
 
-      // Reset modal
+      
       select.value = "";
       document.getElementById('modal-qty').value = "1";
 
-      // Close modal
+      
       const modal = bootstrap.Modal.getInstance(document.getElementById('serviceModal'));
       if (modal) modal.hide();
 
@@ -669,7 +669,7 @@
       updateTotal();
     }
 
-    // ─── Auth Guard
+    
     (function () {
       const s = JSON.parse(sessionStorage.getItem('hbms_user') || 'null');
       if (!s) { window.location.href = 'index.html'; return; }

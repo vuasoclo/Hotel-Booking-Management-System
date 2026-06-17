@@ -105,7 +105,7 @@
         const data = await response.json();
         errEl.classList.add('d-none');
 
-        // Lưu session vào sessionStorage (backend sẽ dùng JWT/cookie thực)
+        
         sessionStorage.setItem('hbms_user', JSON.stringify({
           username: username,
           name:    data.name,
@@ -132,7 +132,7 @@
       feather.replace();
     }
 
-    // Nếu đã đăng nhập rồi → redirect thẳng
+    
     if (sessionStorage.getItem('hbms_user')) {
       window.location.href = 'calendar.html';
     }

@@ -253,7 +253,7 @@
 
     function renderHeatmap(daily_occupancy) {
       const dates = [...new Set(daily_occupancy.map(d => d.date))].sort();
-      const latestDates = dates.slice(0, 30); // 30 latest dates
+      const latestDates = dates.slice(0, 30); 
       
       const thead = document.getElementById('heatmap-head');
       thead.innerHTML = '<th style="width: 120px;">Room</th>';
@@ -330,7 +330,7 @@
         document.getElementById('services-pct').textContent = servicesPct + '%';
         document.getElementById('surcharges-pct').textContent = surchargesPct + '%';
 
-        // Dynamic donut chart SVG
+        
         const donutRooms = document.getElementById('donut-rooms');
         const donutServices = document.getElementById('donut-services');
         const donutSurcharges = document.getElementById('donut-surcharges');

@@ -6,10 +6,6 @@ router = APIRouter(prefix="/api/auth", tags=["Auth"])
 
 @router.post("/login")
 def login(body: LoginRequest):
-    """
-    Xác thực tài khoản staff.
-    Trả về: { staff_id, name, role }
-    """
     result = execute(
         "SELECT id AS staff_id, name, role FROM staff WHERE username = %s AND password_hash = %s",
         (body.username, body.password),
@@ -21,5 +17,4 @@ def login(body: LoginRequest):
 
 @router.post("/logout")
 def logout():
-    """Frontend tự xóa sessionStorage. Endpoint này chỉ để log hoặc invalidate token sau này."""
     return {"success": True}

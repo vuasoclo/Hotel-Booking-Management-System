@@ -11,7 +11,7 @@ Hệ thống chạy bằng Docker Compose để đảm bảo cài đặt nhanh, 
 | Thành phần | Công nghệ | Vai trò |
 |---|---|---|
 | Frontend | HTML, CSS, JavaScript, Nginx | Giao diện người dùng, phục vụ tại port `3000` |
-| Backend | Python, FastAPI, Uvicorn | REST API xử lý nghiệp vụ, phục vụ tại port `9000` |
+| Backend | Python 3.10, FastAPI, Uvicorn | REST API xử lý nghiệp vụ, phục vụ tại port `9000` |
 | Database | PostgreSQL 15 | Lưu trữ dữ liệu, ràng buộc toàn vẹn, procedure/function/view/trigger |
 | Container | Docker, Docker Compose | Build, chạy và liên kết các service |
 | DB driver | psycopg2 | Kết nối FastAPI với PostgreSQL |
@@ -77,6 +77,8 @@ Hotel-Booking-Management-System-main/
 │   ├── statistics.html
 │   └── css/
 │       └── globals.css
+├── .gitignore
+├── .python-version
 ├── docker-compose.yml
 ├── test_query_safe.sql
 └── README.md
@@ -993,6 +995,10 @@ CALL record_payment()
 - Docker Desktop hoặc Docker Engine.
 - Docker Compose.
 
+Backend luôn chạy trong Docker bằng image `python:3.10-slim`. Không cần cài Python 3.10 trên máy host. Nếu máy host có Python khác phiên bản, ví dụ Python 3.14, vẫn chạy dự án bằng Docker Compose như bình thường.
+
+File `.python-version` được đặt là `3.10` để ghi rõ runtime backend mong muốn và hỗ trợ các công cụ tự chọn Python khi cần.
+
 ### 15.2. Build và chạy
 
 Tại thư mục gốc dự án:
@@ -1022,7 +1028,29 @@ DB_PORT=6000
 
 Khi chạy trong container backend, `DB_HOST=db` và `DB_PORT=5432` theo `backend/.env`. Cổng `6000` chỉ dùng từ máy host, ví dụ pgAdmin, DBeaver hoặc psql chạy ngoài Docker.
 
-### 15.3. Ý nghĩa mapping port Docker
+### 15.3. Chạy backend bằng Docker
+
+Backend không chạy trực tiếp bằng Python trên máy host. Luôn chạy qua Docker Compose để đảm bảo đúng Python 3.10:
+
+```powershell
+docker compose up --build -d backend
+```
+
+Kiểm tra Python trong container backend:
+
+```powershell
+docker compose exec backend python --version
+```
+
+Kết quả mong muốn:
+
+```text
+Python 3.10.x
+```
+
+Không commit cache hoặc virtual environment. `.gitignore` đã bỏ qua `__pycache__/`, `*.pyc`, `.venv/`, `venv/`, `env/` và `.env`.
+
+### 15.4. Ý nghĩa mapping port Docker
 
 Docker Compose dùng dạng:
 
@@ -1040,13 +1068,13 @@ Trong dự án:
 
 Database đổi host port sang `6000` để tránh xung đột với PostgreSQL local thường dùng port `5432`. Không đổi cổng trong container vì PostgreSQL mặc định chạy ổn định ở `5432`, backend nội bộ Docker vẫn kết nối qua `db:5432`.
 
-### 15.4. Kiểm tra trạng thái container
+### 15.5. Kiểm tra trạng thái container
 
 ```bash
 docker compose ps
 ```
 
-### 15.5. Xem log
+### 15.6. Xem log
 
 ```bash
 docker compose logs -f
@@ -1064,13 +1092,13 @@ Xem log riêng database:
 docker compose logs -f db
 ```
 
-### 15.6. Dừng dự án, giữ dữ liệu
+### 15.7. Dừng dự án, giữ dữ liệu
 
 ```bash
 docker compose down
 ```
 
-### 15.7. Dừng dự án và xóa dữ liệu database
+### 15.8. Dừng dự án và xóa dữ liệu database
 
 Dùng khi muốn PostgreSQL nạp lại `schema.sql`, `seed.sql` và các file SQL init từ đầu.
 
@@ -1090,7 +1118,7 @@ Hoặc gộp một dòng:
 docker compose down -v && docker compose up --build -d
 ```
 
-### 15.8. Kết nối database bằng pgAdmin 4
+### 15.9. Kết nối database bằng pgAdmin 4
 
 Do dự án publish PostgreSQL ra host port `6000`, cấu hình pgAdmin như sau:
 
@@ -1131,7 +1159,7 @@ ORDER BY table_type, table_name;
 
 Kết nối đúng sẽ thấy database `hbms`, schema `public`, các bảng như `bookings`, `rooms`, `customers`, `room_assignments`, `services`.
 
-### 15.9. Cài đặt trên máy khác
+### 15.10. Cài đặt trên máy khác
 
 Các bước cài đặt trên máy mới:
 

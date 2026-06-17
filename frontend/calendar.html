@@ -36,7 +36,7 @@
       overflow: hidden;
     }
 
-    /* Hover highlight: booking cùng id sáng lên */
+    
     .booking-block.booking-hover {
       filter: brightness(0.88);
       box-shadow: 0 0 0 2px currentColor;
@@ -102,7 +102,7 @@
         <div class="d-flex border-bottom sticky-top bg-white" style="z-index:20">
           <div class="room-label-col room-type-header d-flex align-items-center px-3" style="height:48px">Rooms</div>
           <div class="d-flex flex-grow-1" id="calendar-header-dates">
-            <!-- Dates will be generated here -->
+            
           </div>
         </div>
 
@@ -116,7 +116,7 @@
   <script>
     feather.replace();
 
-    // ─── Auth Guard ────────────────────────────────────────────────────────────
+    
     const session = JSON.parse(sessionStorage.getItem('hbms_user') || 'null');
     if (!session) { window.location.href = 'index.html'; }
     document.getElementById('topbar-name').textContent = session ? session.name : 'Guest';
@@ -356,7 +356,7 @@
             } catch (e) {
               console.error(e);
               alert(e.message || "Error moving room!");
-              fetchCalendar(); // refresh to snap back visually
+              fetchCalendar(); 
             }
           }
         } else {
@@ -390,7 +390,7 @@
       fetchCalendar();
     }
 
-    // Bind chevron buttons
+    
     const btnGroup = document.querySelectorAll('.btn-group button');
     if (btnGroup.length >= 2) {
       btnGroup[0].addEventListener('click', () => shiftDate(-1));

@@ -227,29 +227,29 @@
         </div>
       </div>
 
-      <!-- Bottom Sticky Action Bar -->
+      
       <div class="action-bar d-flex justify-content-end align-items-center gap-3 shadow-lg">
-        <!-- Cancel: me-auto đẩy các nút khác sang phải khi hiển; khi ẩn (d-none) tự động mất tác dụng -->
+        
         <button id="btn-cancel" class="btn btn-outline-danger fw-bold me-auto"
           style="display:inline-flex;align-items:center;gap:8px">
           <i data-feather="x" style="width:16px"></i> Cancel Booking
         </button>
 
-        <!-- Bên phải: action group -->
+        
         <div class="d-flex gap-3">
-          <!-- Issue Invoice: Active | Checked-in | Completed -->
+          
           <button id="btn-invoice" class="btn btn-outline-secondary fw-bold" data-bs-toggle="modal"
             data-bs-target="#invoiceModal">
             Issue Invoice
           </button>
 
-          <!-- Record Payment: Active | Checked-in | Completed -->
+          
           <button id="btn-payment" class="btn btn-outline-primary fw-bold" data-bs-toggle="modal"
             data-bs-target="#paymentModal">
             Record Payment
           </button>
 
-          <!-- Primary action: đổi label/màu theo status -->
+          
           <button id="btn-primary-action" class="btn btn-primary fw-bold px-4"
             style="background-color: var(--color-primary-600)">
             Check-in
@@ -260,7 +260,7 @@
     </main>
   </div>
 
-  <!-- Service Modal -->
+  
   <div class="modal fade" id="serviceModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-md modal-dialog-centered">
       <div class="modal-content rounded-lg border-0 shadow-lg">
@@ -294,7 +294,7 @@
     </div>
   </div>
 
-  <!-- Payment Modal -->
+  
   <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-md modal-dialog-centered">
       <div class="modal-content rounded-lg border-0 shadow-lg">
@@ -338,7 +338,7 @@
     </div>
   </div>
 
-  <!-- Invoice Modal -->
+  
   <div class="modal fade" id="invoiceModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-md modal-dialog-centered">
       <div class="modal-content border-0 shadow-lg">
@@ -379,7 +379,7 @@
   <script>
     feather.replace();
 
-    // ─── Auth Guard ────────────────────────────────────────────────────────────
+    
     (function() {
       const s = JSON.parse(sessionStorage.getItem('hbms_user') || 'null');
       if (!s) { window.location.href = 'index.html'; return; }
@@ -393,7 +393,7 @@
       document.getElementById('btn-logout').addEventListener('click', () => { sessionStorage.removeItem('hbms_user'); window.location.href='index.html'; });
     })();
 
-    // ─── Booking Logic ────────────────────────────────────────────────────────
+    
     const urlParams = new URLSearchParams(window.location.search);
     const bookingId = urlParams.get('id');
     const session = JSON.parse(sessionStorage.getItem('hbms_user') || '{}');
@@ -438,7 +438,7 @@
     function renderBooking(data) {
       document.getElementById('booking-id-title').textContent = `Booking #BK-${data.booking_id.toString().padStart(5, '0')}`;
       
-      // Guest Info
+      
       const inits = data.customer_name ? data.customer_name.split(' ').map(n=>n[0]).join('').substring(0,2).toUpperCase() : 'G';
       document.getElementById('guest-initials').textContent = inits;
       document.getElementById('guest-name-display').textContent = data.customer_name || '--';
@@ -446,7 +446,7 @@
       document.getElementById('guest-phone-display').textContent = data.customer_phone || '--';
       document.getElementById('guest-id-display').textContent = data.id_number || '--';
 
-      // Stay Details
+      
       document.getElementById('stay-checkin').textContent = formatDateTime(data.check_in);
       document.getElementById('stay-checkout').textContent = formatDateTime(data.check_out);
       document.getElementById('stay-nights').textContent = `${data.nights} nights`;
@@ -456,13 +456,13 @@
       ).join('');
       document.getElementById('stay-rooms').innerHTML = roomsHtml;
 
-      // Cost Breakdown Calculations
+      
       let surchargesTotal = data.surcharges.reduce((sum, s) => sum + Number(s.amount), 0);
       let servicesTotal = data.services.reduce((sum, s) => sum + (Number(s.quantity) * Number(s.unit_price)), 0);
       let totalAmount = Number(data.total_amount);
       let amountPaid = Number(data.amount_paid);
       let roomsTotal = totalAmount - surchargesTotal - servicesTotal;
-      if (roomsTotal < 0) roomsTotal = 0; // Fallback
+      if (roomsTotal < 0) roomsTotal = 0; 
 
       document.getElementById('rooms-cost-header').textContent = `Rooms (${formatMoney(roomsTotal)})`;
       document.getElementById('rooms-cost-body').innerHTML = `<div class="d-flex justify-content-between"><span>Base Rooms Cost</span><span class="text-mono">${formatMoney(roomsTotal)}</span></div>`;
@@ -481,7 +481,7 @@
       document.getElementById('amount-paid').textContent = `${formatMoney(amountPaid)} VND`;
       document.getElementById('balance-due').textContent = `${formatMoney(totalAmount - amountPaid)} VND`;
 
-      // Services List Table
+      
       document.getElementById('services-list-body').innerHTML = data.services.map(s => `
         <tr>
           <td>${s.service_name}<br><span class="text-muted" style="font-size:10px">${formatDateTime(s.used_at)}</span></td>
@@ -537,8 +537,8 @@
         btnPrimary.style.backgroundColor = '';
         
         btnCancel.classList.add('d-none');
-        btnPayment.classList.add('d-none'); // Can't pay if completed? Wait, yes you can if balance > 0, but usually balance is 0. Let's hide it or disable if balance is 0.
-        // Services cannot be added to completed bookings (modal button hidden via CSS or disabled)
+        btnPayment.classList.add('d-none'); 
+        
 
         if (statusBadge) {
           statusBadge.className = 'status-badge status-completed';
@@ -559,13 +559,13 @@
       }
     }
 
-    // ─── API Action Handlers ────────────────────────────────────────────────
+    
     
     async function handleCheckIn() {
       if(!currentBookingData || currentBookingData.room_assignments.length === 0) return;
       
       try {
-        // Check-in tất cả các phòng trong booking
+        
         for (const ra of currentBookingData.room_assignments) {
           const res = await fetch(`http://localhost:9000/api/bookings/${bookingId}/checkin`, {
             method: 'POST',
@@ -621,9 +621,9 @@
       } catch(err) { console.error(err); alert('Network error during Cancel.'); }
     }
 
-    // Invoice Logic
+    
     document.getElementById('btn-invoice').addEventListener('click', () => {
-      // Set values in invoice modal
+      
       if(currentBookingData) {
         document.querySelector('#invoiceModal .bg-light span:nth-child(2)').textContent = `${formatMoney(currentBookingData.total_amount)} VND`;
         document.querySelector('#invoiceModal .text-success').textContent = `${formatMoney(currentBookingData.amount_paid)} VND`;
@@ -648,13 +648,13 @@
       } catch(err) { console.error(err); }
     });
 
-    // Payment Logic
+    
     document.getElementById('btn-payment').addEventListener('click', () => {
       if(currentBookingData) {
         const balance = currentBookingData.total_amount - currentBookingData.amount_paid;
         document.querySelector('#paymentModal .text-danger').textContent = `${formatMoney(balance)} VND`;
         document.getElementById('payAmount').value = balance;
-        // Update quick fill buttons
+        
         const qf = document.querySelectorAll('.quick-fill-btn');
         if(qf.length >= 3) {
            qf[0].onclick = () => document.getElementById('payAmount').value = Math.round(balance * 0.25);
@@ -686,7 +686,7 @@
       } catch(err) { console.error(err); }
     });
 
-    // Service Logic
+    
     let searchTimeout;
     document.getElementById('service-search-input').addEventListener('input', (e) => {
       clearTimeout(searchTimeout);
@@ -735,7 +735,7 @@
       } catch(err) { console.error(err); }
     };
 
-    // Initial Load
+    
     loadBookingDetails();
   </script>
 </body>

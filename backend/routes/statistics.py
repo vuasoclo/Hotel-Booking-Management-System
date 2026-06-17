@@ -9,19 +9,11 @@ def get_statistics(
     period: str = Query("all", enum=["all", "this_month", "last_month", "this_quarter"]),
     room_type_id: Optional[int] = Query(None)
 ):
-    """Lấy dữ liệu dashboard: KPI, occupancy heatmap, revenue chart có hỗ trợ filter."""
-    
-    # 1. Xây dựng điều kiện lọc (WHERE clauses)
     occ_where = ["1=1"]
     rev_where = ["1=1"]
     bk_where = ["status NOT IN ('Cancelled', 'Pending')"]
-    
     if room_type_id:
         occ_where.append(f"v.room_type_id = {room_type_id}")
-        # Note: v_monthly_revenue không có room_type_id vì nó đã sum theo booking. 
-        # Nếu muốn lọc doanh thu theo loại phòng, cần join sâu hơn, 
-        # nhưng ở đây ta ưu tiên hiệu năng và cấu trúc view hiện tại.
-    
     if period == "this_month":
         occ_where.append("DATE_TRUNC('month', v.date) = DATE_TRUNC('month', CURRENT_DATE)")
         rev_where.append("DATE_TRUNC('month', report_month) = DATE_TRUNC('month', CURRENT_DATE)")
@@ -34,8 +26,6 @@ def get_statistics(
         occ_where.append("DATE_TRUNC('quarter', v.date) = DATE_TRUNC('quarter', CURRENT_DATE)")
         rev_where.append("DATE_TRUNC('quarter', report_month) = DATE_TRUNC('quarter', CURRENT_DATE)")
         bk_where.append("DATE_TRUNC('quarter', check_out) = DATE_TRUNC('quarter', CURRENT_DATE)")
-
-    # 2. Thực thi các query
     occupancy_query = f"""
         SELECT v.*, rt.type_name 
         FROM v_daily_occupancy v
@@ -45,7 +35,6 @@ def get_statistics(
         LIMIT 100
     """
     occupancy = execute(occupancy_query, fetch="all")
-    
     revenue_query = f"""
         SELECT * FROM v_monthly_revenue 
         WHERE {" AND ".join(rev_where)}
@@ -53,7 +42,6 @@ def get_statistics(
         LIMIT 12
     """
     revenue = execute(revenue_query, fetch="all")
-
     kpi_query = f"""
         WITH occ_total AS (
             SELECT 
@@ -86,13 +74,11 @@ def get_statistics(
         FROM occ_total o CROSS JOIN rev_total r CROSS JOIN booking_count b
     """
     kpis = execute(kpi_query, fetch="one")
-    
     if not kpis:
         kpis = {
             "avg_occupancy_7d": 0, "total_revenue": 0, "total_collected": 0, 
             "total_outstanding": 0, "adr": 0, "bookings_count": 0
         }
-
     return {
         "kpis": kpis,
         "daily_occupancy": occupancy or [],

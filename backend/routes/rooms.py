@@ -5,7 +5,6 @@ router = APIRouter(prefix="/api/rooms", tags=["Rooms"])
 
 @router.get("/available")
 def get_available_rooms(checkin: str, checkout: str):
-    """Tìm loại phòng còn trống trong khoảng ngày."""
     result = execute(
         "SELECT * FROM search_available_rooms(%s::DATE, %s::DATE)",
         (checkin, checkout),
@@ -15,7 +14,6 @@ def get_available_rooms(checkin: str, checkout: str):
 
 @router.get("/status")
 def get_rooms_status():
-    """Lấy trạng thái vật lý tất cả phòng, bao gồm booking_id cho phòng Occupied."""
     result = execute("""
         SELECT
             r.hotel_id,
@@ -42,6 +40,5 @@ def get_rooms_status():
 
 @router.post("/{room_id}/housekeeping")
 def complete_housekeeping(room_id: int, staff_id: int):
-    """Đánh dấu phòng đã được dọn dẹp, chuyển từ Dirty → Available."""
     execute("CALL housekeeping_complete(%s, %s)", (room_id, staff_id))
     return {"success": True}
